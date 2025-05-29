@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&family=Klee+One&display=swap');
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color:#0D172D;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 80px; /* Más separación entre logo y login */
+    max-width: 900px;
+    width: 100%;
+    flex-direction: row-reverse; /* Invertimos el orden */
+}
+.title-inicio{
+    font-family:'Klee one';
+    font-size: 3vh;
+    color: white;
+ 
+}
+
+/* Logo */
+.logo-section img {
+    width: 575px;
+    max-width: 423px;
+}
+
+/* Caja de Login */
+.login-box {
+    background-color:#2D4172C7;
+    padding: 40px; /* Más espacio interno */
+    border-radius: 40px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+    width: 500px;
+    text-align: center;
+
+    
+}
+
+.login-box h2 {
+    margin-bottom: 20px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px; /* Mayor separación entre inputs */
+    border-radius: 8px;
+    background-color: #645E88A6;
+    color: white;
+    border: none;
+}
+
+.login-box input::placeholder {
+    color:white;
+    font-family:'Klee one';
+    font-size: 2vh;
+
+}
+
+.forgot-password {
+    display: block;
+    font-size: 12px;
+    color: white;
+    text-decoration: none;
+    margin-bottom: 15px;
+    font-family: 'Klee one';
+    font-size: 20px;
+
+}
+.no-cuenta{
+    display: block;
+    font-size: 12px;
+    color: white;
+    text-decoration: none;
+    margin-bottom: 15px;
+    font-family: 'Klee one';
+    font-size: 20px;
+}
+button {
+    background-color: #162447;
+    color: white;
+    font-family:'Hammersmith One';
+    font-size: 24px;
+    border: none;
+    padding: 10px;
+    width: 241px;
+    height: 71px;
+    border-radius: 5px;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+button:hover {
+    background-color: #1f4068;
+}
+
+p {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.register-link {
+    color: white;
+    text-decoration: none;
+    font-family:'Hammersmith One';
+    font-size: 26px;
+}
+
+/* ---------------------- */
+/* 🔹 RESPONSIVE DESIGN  */
+/* ---------------------- */
+
+/* 📱 Tabletas y móviles grandes (pantallas menores a 1024px) */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .logo-section img {
+        max-width: 300px; 
+    }
+
+    .login-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 30px;
+    }
+
+    button {
+        max-width: 220px;
+        font-size: 18px;
+        height: 50px;
+    }
+}
+
+/* 📱 Móviles medianos (hasta 768px) */
+@media (max-width: 768px) {
+    .logo-section img {
+        max-width: 250px;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 350px;
+        padding: 25px;
+    }
+
+    .login-box h2 {
+        font-size: 1.8rem;
+    }
+
+    .login-box input {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    button {
+        max-width: 200px;
+        font-size: 16px;
+        height: 45px;
+    }
+}
+
+/* 📟 Dispositivos pequeños (hasta 480px) */
+@media (max-width: 480px) {
+    .container {
+        gap: 20px;
+    }
+
+    .logo-section img {
+        max-width: 180px;
+    }
+
+    .login-box {
+        padding: 20px;
+        max-width: 300px;
+    }
+
+    .login-box h2 {
+        font-size: 1.5rem;
+    }
+
+    .login-box input {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    button {
+        max-width: 180px;
+        font-size: 14px;
+        height: 40px;
+    }
+
+    .forgot-password, .no-cuenta {
+        font-size: 0.9rem;
+    }
+
+    .register-link {
+        font-size: 18px;
+    }
+}

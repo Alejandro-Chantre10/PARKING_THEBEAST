@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Parqueadero</title>
+  <link rel="stylesheet" href="styles/index.css" />
+</head>
+<body>
+
+  <header class="header">
+    <h1 class="logo">PARKING THE BEASTS</h1>
+    <div class="buttons">
+      <button onclick="mostrarAlerta('login')" class="btn btn-login" >Ingresar</button>
+      <button onclick="mostrarAlerta('registro')" class="btn btn-register">Registrarse</button>
+    </div>
+  </header>
+
+  <section class="intro">
+    <h2>Sistema de Gestión de Parqueadero</h2>
+    <p>
+      Gestiona de forma eficiente el ingreso, salida y control de tarifas para motos, vehículos y bicicletas.
+    </p>
+  </section>
+
+  <section class="mosaicos">
+    <div class="card">
+      <img src="images/imagenMotos.jpg" alt="Moto" id="imagesParking" />
+      <h3>Motos</h3>
+      <p>Gestión completa de motocicletas.</p>
+    </div>
+    <div class="card">
+      <img src="images/imagenCarros.jpg" alt="Carro" id="imagesParking" />
+      <h3>Vehículos</h3>
+      <p>Control de entrada y salida de autos.</p>
+    </div>
+    <div class="card">
+      <img src="images/imagenBici.jpg" alt="Bici" id="imagesParking" />
+      <h3>Bicicletas</h3>
+      <p>Parqueadero seguro para ciclas.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    © 2025 PARKING THE BEASTS. Todos los derechos reservados.
+  </footer>
+
+  <script src="js/index.js"></script>
+</body>
+</html>

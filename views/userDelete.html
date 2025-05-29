@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Eliminar Usuario</title>
+  <link rel="stylesheet" href="../styles/userDelete.css">
+</head>
+<body>|
+
+  <h2>Lista de Usuarios</h2>
+  <button onclick="mostrarModal('Juan Pérez')">Eliminar usuario</button>
+
+  <div class="overlay" id="modalOverlay">
+    <div class="modal">
+      <img src="../images/advertencia-de-triangulo.png" alt="Alerta" />
+      <p id="mensajeConfirmacion"> Estás seguro de eliminar al usuario</p>
+      <div class="modal-buttons">
+        <button class="btn-eliminar" onclick="confirmarEliminacion()">Eliminar</button>
+        <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/userDelete.js"></script>
+</body>
+</html>

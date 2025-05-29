@@ -1,0 +1,77 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../styles/updateReservation.css">
+    <link rel="stylesheet" href="../styles/sideBar.css">
+</head>
+
+<body>
+        <div id="menu-container"></div>
+        <div class="main-content">
+            <div class="update-reservation">
+                <div class="update-header">
+                    <h2>Crear reserva</h2>
+                    <button class="close-btn">X</button>
+                </div>
+                <form>
+                    <label>Número de reserva</label>
+                    <input type="text" value="001" disabled>
+
+                    <label>Placa</label>
+                    <input type="text" value="MWS31H" disabled>
+
+                    <label>Hora ingreso</label>
+                    <div class="time-select">
+                        <select>
+                            <option>Hora</option>
+                            <option>01</option>
+                            <option>02</option>
+                            <option>03</option>
+                        </select>
+                        <select>
+                            <option>Minutos</option>
+                            <option>00</option>
+                            <option>15</option>
+                            <option>30</option>
+                        </select>
+                    </div>
+
+                    <label>*Fecha de reserva</label>
+                    <div class="date-select">
+                        <select>
+                            <option>Día</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                        </select>
+                        <select>
+                            <option>Mes</option>
+                            <option>Enero</option>
+                            <option>Febrero</option>
+                        </select>
+                        <select>
+                            <option>Año</option>
+                            <option>2024</option>
+                            <option>2025</option>
+                        </select>
+                    </div>
+
+
+                    <label>Vehículo</label>
+                    <div class="vehicle-buttons">
+                        <button type="button">Carro</button>
+                        <button type="button">Moto</button>
+                        <button type="button">Bicicleta</button>
+                    </div>
+
+                    <a href="payReservation.html" class="save-btn" id="boton-Guardar">Guardar</a>
+                </form>
+            </div>
+        </div>
+
+    <script src="../js/sideBar.js"></script>
+</body>
+
+</html>

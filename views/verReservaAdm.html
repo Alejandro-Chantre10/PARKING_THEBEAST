@@ -1,0 +1,104 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver reservas Admin</title>
+    <link rel="stylesheet" href="../styles/verReservaAdm.css">
+    <link rel="stylesheet" href="../styles/sideBar.css">
+</head>
+
+<body>
+
+        <div id="menu-container"></div>
+        <div class="main-content">
+            <div class="update-reservation">
+              <div class="update-header">
+                <h2>Ver ReSeRvaS</h2>
+                <button class="close-btn">X</button>
+              </div>
+          
+              <table class="reservation-table">
+                <thead>
+                  <tr>
+                    <th>N° Reserva</th>
+                    <th>Cedula Usuario</th>
+                    <th>Nombre</th>
+                    <th>Vehiculo</th>
+                    <th>N° Bahía</th>
+                    <th>Fecha Ingreso</th>
+                    <th>Hora Ingreso</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>001</td>
+                    <td>1225866</td>
+                    <td>Daniel Mora</td>
+                    <td>Carro</td>
+                    <td>1</td>
+                    <td>12/03/2025</td>
+                    <td>12:00 horas</td>
+                    <td class="actions-cell">
+                        <button class="action-btn">
+                            <img src="../images/descarga-de-archivos.png" alt="descargar" class="icon-img">
+                          </button>
+                        <button class="action-btn">
+                          <img src="../images/editar.png" alt="Editar" class="icon-img">
+                        </button>
+                        <button class="action-btn" onclick="showDeleteModal('001', this)">
+                            <img src="../images/eliminar.png" alt="Eliminar" class="icon-img">
+                          </button>
+                      </td>
+                      
+                  </tr>
+                  <tr>
+                    <td>002</td>
+                    <td>1558564</td>
+                    <td>Maicol Muñoz</td>
+                    <td>Moto</td>
+                    <td>4</td>
+                    <td>12/03/2025</td>
+                    <td>14:00 horas</td>
+                    <td class="actions-cell">
+                        <button class="action-btn">
+                            <img src="../images/descarga-de-archivos.png" alt="descargar" class="icon-img">
+                          </button>
+                        <button class="action-btn">
+                          <img src="../images/editar.png" alt="Editar" class="icon-img">
+                        </button>
+                        <button class="action-btn" onclick="showDeleteModal('002', this)">
+                            <img src="../images/eliminar.png" alt="Eliminar" class="icon-img">
+                          </button>
+                      </td>
+                      
+                  </tr>
+                  <!-- Fila vacía decorativa -->
+                  <tr>
+                    <td colspan="8">&nbsp;</td>
+                  </tr>
+                </tbody>
+            </table>
+            <div class="boton-centrado">
+              <a href="crearReservaAdm.html" class="btn-azul">Crear Nueva Reserva</a>
+            </div>
+            </div>
+          </div>
+          
+    <script src="../js/verReservaAdm.js"></script>
+    <script src="../js/sideBar.js"></script>
+</body>
+<!-- Modal de Confirmación -->
+    <div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <img src="../images/advertencia-de-triangulo.png" alt="Advertencia" class="warning-img">
+      <p id="modalText">¿Estás seguro de eliminar la reserva?</p>
+      <div class="modal-buttons">
+        <button class="btn-delete">Eliminar</button>
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+</html>

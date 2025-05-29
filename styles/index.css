@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&family=Klee+One&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #0D172D;
+    color: #333;
+  }
+  
+  .header {
+    background:white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+   
+  }
+  
+  .logo {
+    font-size: 24px;
+    color: #2D4172;
+  }
+  
+  .buttons .btn {
+    margin-left: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .btn-login {
+    background-color: #2563eb;
+    color: white;
+  }
+  
+  .btn-register {
+    background-color: white;
+    color: #2563eb;
+    border: 2px solid #2563eb;
+  }
+  
+  .btn:hover {
+    opacity: 0.9;
+  }
+  
+  .intro {
+    text-align: center;
+    margin: 40px auto;
+    max-width: 600px;
+    color: white;
+  }
+  
+  .intro h2 {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+  
+  .intro p {
+    font-size: 18px;
+    color: #555;
+  }
+  
+  .mosaicos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin: 40px auto;
+    max-width: 1000px;
+    padding: 0 20px;
+  }
+  
+  .card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 260px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card img {
+    max-width: 100px;
+    margin-bottom: 15px;
+  }
+  
+  .card h3 {
+    font-size: 20px;
+    color: #1f2937;
+    margin-bottom: 5px;
+  }
+  
+  .card p {
+    color: #6b7280;
+  }
+  
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    color: #888;
+  }
+  
+  #imagesParking{
+    border-radius: 50%;
+  }

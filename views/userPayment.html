@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagos</title>
+    <link rel="stylesheet" href="../styles/userPayment.css">
+    <link rel="stylesheet" href="../styles/sideBar.css">
+</head>
+
+<body>
+
+    <div id="menu-container"></div>
+
+    <div class="main-content">
+        <div class="payment-container">
+            <div class="payment-header">
+                <h2>PAGO</h2>
+                <button class="close-btn">X</button>
+            </div>
+            <form>
+                <label>Número de reserva</label>
+                <input type="text" value="001" readonly>
+            
+                <label>Placa</label>
+                <input type="text" value="ABC123" readonly>
+            
+                <label>Hora ingreso</label>
+                <input type="text" value="08:00 AM" readonly>
+            
+                <label>Fecha de reserva</label>
+                <input type="text" value="2025-04-07" readonly>
+            
+                <label>Vehículo</label>
+                <input type="text" value="Moto" readonly>
+            </form>
+            
+                <label>Método de pago</label>
+                <div class="payment-methods">
+                    <button type="button">PSE</button>
+                    <button type="button">Tarjeta</button>
+                </div>
+
+                <button class="pay-btn">Pagar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/sideBar.js"></script>
+</body>
+
+</html>

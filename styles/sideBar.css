@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lalezar&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Khmer&display=swap" rel="stylesheet');
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet');
+
+/* Estilos generales */
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+/* Sidebar */
+.sidebar {
+    z-index: 999;
+    width: 300px;
+    height: 100vh; /* Toda la altura */
+    background-color: #223766BF;
+    padding: 20px;
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    padding: 0;
+
+}
+
+/* Sidebar oculto */
+.sidebar.hidden {
+    width: 0;
+    overflow: hidden;
+}
+
+/* Contenido principal normal */
+.main-content {
+    margin-left: 300px;
+    transition: all 0.3s ease;
+}
+
+/* Contenido principal expandido cuando sidebar está oculto */
+.main-content.expanded {
+    margin-left: 0;
+}
+
+.floating-button {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background-color: rgba(34, 55, 102, 0.68);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Oculto por defecto */
+.floating-button.hidden {
+    display: none;
+}
+/* Menú */
+.menu {
+    list-style: none;
+    
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    position: relative;
+    left: 0;
+}
+
+.menu li {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.menu li a {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(176, 181, 189, 0.38);
+    color: white;
+    text-align: center;
+    font-family: 'Love Ya Like A Sister', cursive;
+    text-decoration: none;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+}
+/* Botón de menú */
+.menu-icon {
+    color: #B0B5BD;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 40px;
+    margin-right: 5%;
+    position: absolute;  /* Posicionamiento absoluto */
+    top: 0px;            /* Distancia desde arriba */
+    left: 0px;          /* Distancia desde la derecha */
+    margin: 0;            /* Elimina márgenes que lo alejen */
+}
+
+/* Botón Home */
+.home-btn {
+    font-family: 'klee one';
+    width: 91px;
+    background-color: #ACB4C4;
+    color: black;
+    padding: px;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 17px;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 15px;
+    position: absolute;  /* Posicionamiento absoluto */
+    top: 10px;            /* Distancia desde arriba */
+    right: 12px;          /* Distancia desde la derecha */
+   
+}
+    
+
+
+.home-btn i {
+    margin-left: 2px;
+}
+
+/* Avatar */
+.avatar {
+    font-family: 'Luckiest Guy', cursive;
+    background-color: white;
+    color: black;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 0px;
+    font-size: 40px;
+    margin-top: 50px ;
+    margin-left: 20px;
+}
+
+.user-name{
+    font-family: 'klee one';
+    margin-right: auto;
+    padding: px 2px;
+    margin-top: 45px;
+    font-size: 15px;
+    margin-left: 20px;
+}
+
+.dropdown-btn{
+    font-family: 'Love Ya Like A Sister', cursive;
+    color: #2A2954;
+    background-color: #ACB4C4;
+    border: none;
+    border-radius: 15px;
+    width: 75%;
+    padding: 15px 20px;      /* Más espacio interno */
+    font-size: 18px;   
+    border: #ACB4C4;
+    display: block;
+    margin: 10px auto;
+
+}
+
+
+/* Logo */
+.logo {
+    background-image: url('../images/LogoInicio.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 157px;
+    height: 127px;
+    margin-left: 75px;
+    margin-bottom: 20px;
+}

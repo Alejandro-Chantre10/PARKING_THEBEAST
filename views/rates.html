@@ -1,0 +1,84 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../styles/seeReservation.css">
+    <link rel="stylesheet" href="../styles/sideBar.css">
+</head>
+
+<body>
+
+        <div id="menu-container"></div>
+        <div class="main-content">
+            <div class="update-reservation">
+              <div class="update-header">
+                <h2>TARIFAS</h2>
+                <button class="close-btn">X</button>
+              </div>
+          
+              <table class="reservation-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>CARRO</th>
+                    <th>MOTO</th>
+                    <th>BICICLETA</th>
+                    <th>ACCION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>001</td>
+                    <td>ADS00G</td>
+                    <td>8:00 pm</td>
+                    <td>12/03/2025</td>
+                    <td>Carro</td>
+                    <td class="actions-cell">
+                        <button onclick="Reserva('descargar')" class="action-btn">
+                            <img src="../images/descarga-de-archivos.png" alt="descargar" class="icon-img">
+                          </button>
+                        <button onclick="Reserva('editar')" class="action-btn">
+                          <img src="../images/editar.png" alt="Editar" class="icon-img">
+                        </button>
+                        <button onclick="Reserva('eliminar')" class="action-btn">
+                          <img src="../images/eliminar.png" alt="Eliminar" class="icon-img">
+                        </button>
+                      </td>
+                  </tr>
+                  <tr>
+                    <td>002</td>
+                    <td>MWS34D</td>
+                    <td>8:00 pm</td>
+                    <td>12/03/2025</td>
+                    <td>Moto</td>
+                    <td class="actions-cell">
+                        <button class="action-btn">
+                            <img src="../images/descarga-de-archivos.png" alt="descargar" class="icon-img">
+                          </button>
+                        <button class="action-btn">
+                          <img src="../images/editar.png" alt="Editar" class="icon-img">
+                        </button>
+                        <button class="action-btn">
+                          <img src="../images/eliminar.png" alt="Eliminar" class="icon-img">
+                        </button>
+                      </td>
+                      
+                  </tr>
+                  <!-- Fila vacía decorativa -->
+                  <tr>
+                    <td colspan="6">&nbsp;</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+
+    <script src="../js/sideBar.js"></script>
+    <script src="../js/reserva.js"></script>
+    
+</body>
+
+</html>

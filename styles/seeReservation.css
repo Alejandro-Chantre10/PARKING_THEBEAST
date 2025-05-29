@@ -1,0 +1,216 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lalezar&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Khmer&display=swap');
+
+body {
+    margin: 0;
+    background: #d3d8eb;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #d3d8eb;
+    padding: 20px;
+    min-width: 0;
+   
+}
+
+/* ✅ Contenedor principal ampliado */
+.update-reservation {
+    background: #D9D9D9;
+    padding: 20px;
+    border-radius: 20px;
+    width: 95%;
+    max-width: none;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    margin: auto;
+    margin-top: 60px;
+
+}
+
+.update-header {
+    font-family: 'Love Ya Like A Sister';
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.update-header h2 {
+    font-size: 20px;
+    color: #2e2e5d;
+    margin-left: auto;
+    margin-right: auto;
+    
+
+}
+
+.close-btn {
+    background-color: #B1B7C3;
+    color: #000;
+    font-family: 'Khmer', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    background-color: #444;
+}
+
+/* Estilo para la tabla de reservas */
+.reservation-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Klee One";
+    background-color: #bbc4dc;
+    margin-top: 10px;
+
+
+}
+
+.reservation-table thead {
+    background-color: #C4C7CF;
+    color: #000;
+}
+
+.reservation-table th, .reservation-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #C4C7CF;
+    
+}
+
+.reservation-table tbody tr:nth-child(even) {
+    background-color: #C4C7CF;
+}
+
+.actions-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Espacio entre botones */
+}
+
+.reservation-table td button.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.action-btn img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+/* 🔹 RESPONSIVE DESIGN 🔹 */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .logo-section img {
+        max-width: 300px; 
+    }
+
+    .login-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 30px;
+    }
+
+    button {
+        max-width: 220px;
+        font-size: 18px;
+        height: 50px;
+    }
+}
+
+@media (max-width: 768px) {
+    .logo-section img {
+        max-width: 250px;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 350px;
+        padding: 25px;
+    }
+
+    .login-box h2 {
+        font-size: 1.8rem;
+    }
+
+    .login-box input {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    button {
+        max-width: 200px;
+        font-size: 16px;
+        height: 45px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        gap: 20px;
+    }
+
+    .logo-section img {
+        max-width: 180px;
+    }
+
+    .login-box {
+        padding: 20px;
+        max-width: 300px;
+    }
+
+    .login-box h2 {
+        font-size: 1.5rem;
+    }
+
+    .login-box input {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    button {
+        max-width: 180px;
+        font-size: 14px;
+        height: 40px;
+    }
+
+    .forgot-password, .no-cuenta {
+        font-size: 0.9rem;
+    }
+
+    .register-link {
+        font-size: 18px;
+    }
+}

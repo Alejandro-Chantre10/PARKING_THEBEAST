@@ -1,0 +1,55 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../styles/pqr.css" />
+    <link rel="stylesheet" href="../styles/sideBar.css" />
+  </head>
+
+  <body>
+    <div id="menu-container"></div>
+    <div class="main-content">
+      <div class="update-reservation">
+        <div class="update-header">
+          <h2>PQR</h2>
+          <button class="close-btn">X</button>
+        </div>
+        <form>
+          <label>Tipo de peticcion</label>
+          <div class="vehicle-buttons">
+            <button type="button">Peticiones</button>
+            <button type="button">Quejas</button>
+            <button type="button">Reclamos</button>
+          </div>
+          <label>Descripción</label>
+          <textarea placeholder="Escriba aquí la descripción"></textarea>
+
+          <label>*Fecha</label>
+          <div class="date-select">
+            <select>
+              <option>Día</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+            <select>
+              <option>Mes</option>
+              <option>Enero</option>
+              <option>Febrero</option>
+            </select>
+            <select>
+              <option>Año</option>
+              <option>2024</option>
+              <option>2025</option>
+            </select>
+          </div>
+
+          <button class="save-btn">Guardar</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="../js/sideBar.js"></script>
+  </body>
+</html>

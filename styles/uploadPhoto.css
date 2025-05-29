@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lalezar&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Khmer&display=swap" rel="stylesheet');
+
+body {
+    background-color: #aab3c6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  
+  .contenedor {
+    background-color: #b8c1d8;
+    padding: 40px;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .circulo {
+    width: 550px;
+    height: 508px;
+    background-color: #d8deed;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .circulo i {
+    font-size: 300px;
+    color: #4a4a4a;
+   
+  }
+  
+  .btn-guardar {
+    margin-top: 30px;
+    padding: 10px 20px;
+    background-color: #3f5b9c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .btn-guardar:hover {
+    background-color: #334c7a;
+  }
+  
+/* 📱 Móviles medianos (hasta 768px) */
+@media (max-width: 768px) {
+    .logo-section img {
+        max-width: 250px;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 350px;
+        padding: 25px;
+    }
+
+    .login-box h2 {
+        font-size: 1.8rem;
+    }
+
+    .login-box input {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    button {
+        max-width: 200px;
+        font-size: 16px;
+        height: 45px;
+    }
+}
+
+/* 📟 Dispositivos pequeños (hasta 480px) */
+@media (max-width: 480px) {
+    .container {
+        gap: 20px;
+    }
+
+    .logo-section img {
+        max-width: 180px;
+    }
+
+    .login-box {
+        padding: 20px;
+        max-width: 300px;
+    }
+
+    .login-box h2 {
+        font-size: 1.5rem;
+    }
+
+    .login-box input {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    button {
+        max-width: 180px;
+        font-size: 14px;
+        height: 40px;
+    }
+
+    .forgot-password, .no-cuenta {
+        font-size: 0.9rem;
+    }
+
+    .register-link {
+        font-size: 18px;
+    }
+}

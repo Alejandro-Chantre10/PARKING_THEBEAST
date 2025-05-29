@@ -1,0 +1,76 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../styles/personalData.css" />
+    <link rel="stylesheet" href="../styles/sideBar.css" />
+  </head>
+
+  <body>
+    <div id="menu-container"></div>
+    <div class="main-content">
+      <div class="profile-container">
+        <div class="profile-image-wrapper">
+          <img
+            src="../images/ICONO USUARIO.png"
+            alt="Imagen de perfil"
+            class="profile-image"
+          />
+        </div>
+        <div class="profile-name">NOMBRE APELLIDO</div>
+
+        <div class="form-container">
+          <div class="form-group">
+            <input id="current-password" type="text" placeholder="Nombres" />
+          </div>
+
+          <div class="form-group">
+            <input id="new-password" type="password" placeholder="Apellidos" />
+          </div>
+
+          <div class="form-group">
+            <input id="confirm-password" type="password" placeholder="Cedula" />
+          </div>
+
+          <div class="form-group">
+            <input id="confirm-password" type="password" placeholder="Correo" />
+          </div>
+
+          <div class="form-group">
+            <input
+              id="confirm-password"
+              type="password"
+              placeholder="Telefono"
+            />
+          </div>
+
+          <div class="form-group">
+            <input
+              id="confirm-password"
+              type="password"
+              placeholder="Dirección"
+            />
+          </div>
+
+          <a href="updatePersonalData.html" class="btn-save" type="button" id="boton-Guardar">Editar perfil</a>
+          <a href="updatePassword.html" class="btn-save" type="button" id="boton-Guardar">Cambiar contraseña</a>
+        </div>
+      </div>
+
+      <script>
+        function togglePassword(icon) {
+          const input = icon.previousElementSibling;
+          const isPassword = input.type === "password";
+
+          input.type = isPassword ? "text" : "password";
+          icon.src = isPassword
+            ? "../images/ojo off.png"
+            : "../images/ojos on.png";
+          icon.alt = isPassword ? "Ocultar" : "Mostrar";
+        }
+      </script>
+    </div>
+    <script src="../js/sideBar.js"></script>
+  </body>
+</html>

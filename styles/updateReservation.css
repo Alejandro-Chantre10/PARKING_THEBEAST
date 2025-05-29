@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lalezar&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Khmer&display=swap" rel="stylesheet');
+body {
+    margin: 0;
+    background: #d3d8eb; /* Color de fondo similar a la imagen */
+}
+
+
+.container {
+    display: flex;
+    height: 100vh; /* Ocupa toda la pantalla */
+}   
+
+
+/* Contenido principal ocupa el resto del espacio */
+.main content {
+    
+    flex: 1;
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    background: #d3d8eb;
+    padding: 20px;
+    min-width: 0;
+}
+
+/* formulario */
+.update-reservation {
+    
+    background: #D9D9D9;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: calc(100vw - 340px); /* 300 del nav + 20px de margen + 20 de padding */
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    margin: auto; /* Lo mantiene centrado en el espacio restante */
+    margin-top: 60px;
+}
+.update-header {
+    font-family:'Klee one';
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    
+}
+
+.update-header h2 {
+    
+    font-size: 20px;
+    color: #2e2e5d;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.close-btn {
+    background-color: #B1B7C3;  /* Mismo color de fondo */
+    color: #000; /* Color del texto */
+    font-family: 'Khmer', sans-serif;/* Asegura la misma fuente */
+    font-size: 18px; /* Ajusta el tamaño según el botón Guardar */
+    font-weight: bold; /*  Hace que la X se vea más gruesa */
+    border: none; /* Sin borde */
+    padding: 8px 14px; /* Ajusta el espacio interno */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer; /* Hace que sea clickeable */
+}
+
+.close-btn:hover {
+    background-color: #444; /* Color más claro al pasar el mouse */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-family: 'klee one';
+    font-size: 14px;
+    color: #2e2e5d;
+    margin-bottom: 5px;
+}
+
+input, select, button {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #C4C7CF;
+    margin-bottom: 10px;
+    font-family: 'klee one';
+}
+
+input[disabled] {
+    background: #C4C7CF;
+    color: #000;
+}
+
+/* Estilos para los selectores de hora y fecha */
+.time-select select,
+.date-select select {
+    font-family: 'Love Ya Like A Sister', cursive; /* Cambia a la fuente que quieras */
+    font-size: 16px; /* Ajusta el tamaño */
+    color: #223766; /* Color del texto */
+    background-color: #C4C7CF; /* Color de fondo */
+    border: 2px solid #C4C7CF; /* Borde con color */
+    padding: 5px;
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer;
+}
+.vehicle-buttons {
+    
+    display: flex;
+    justify-content: space-between;
+}
+
+.vehicle-buttons button {
+    
+    font-family:'Love Ya Like A Sister', cursive;
+    background: #c9cddf;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    width: 30%;
+}
+
+.vehicle-buttons button:hover {
+    
+    background: #b3b7d4;
+}
+
+.save-btn {
+    font-family: 'Lalezar';
+    background: #223766;
+    color: rgb(0, 0, 0);
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: auto;
+    text-decoration: none;
+
+}
+
+.save-btn:hover {
+    background: #1e1e3d;
+
+}
+
+#boton-Guardar{
+     text-decoration: none;
+     border: none;
+}
+
+#descripcion{
+       background: #C4C7CF;
+       width: 70%;
+       height: 70%;
+}
+/* ---------------------- */
+/* 🔹 RESPONSIVE DESIGN  */
+/* ---------------------- */
+
+/* 📱 Tabletas y móviles grandes (pantallas menores a 1024px) */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .logo-section img {
+        max-width: 300px; 
+    }
+
+    .login-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 30px;
+    }
+
+    button {
+        font-family:'';
+        max-width: 220px;
+        font-size: 18px;
+        height: 50px;
+    }
+}
+
+/* 📱 Móviles medianos (hasta 768px) */
+@media (max-width: 768px) {
+    .logo-section img {
+        max-width: 250px;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 350px;
+        padding: 25px;
+    }
+
+    .login-box h2 {
+        font-size: 1.8rem;
+    }
+
+    .login-box input {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    button {
+        max-width: 200px;
+        font-size: 16px;
+        height: 45px;
+    }
+}
+
+/* 📟 Dispositivos pequeños (hasta 480px) */
+@media (max-width: 480px) {
+    .container {
+        gap: 20px;
+    }
+
+    .logo-section img {
+        max-width: 180px;
+    }
+
+    .login-box {
+        padding: 20px;
+        max-width: 300px;
+    }
+
+    .login-box h2 {
+        font-size: 1.5rem;
+    }
+
+    .login-box input {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    button {
+        max-width: 180px;
+        font-size: 14px;
+        height: 40px;
+    }
+
+    .forgot-password, .no-cuenta {
+        font-size: 0.9rem;
+    }
+
+    .register-link {
+        font-size: 18px;
+    }
+}

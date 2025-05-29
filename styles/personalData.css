@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hammersmith+One&family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lalezar&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Khmer&display=swap" rel="stylesheet');
+
+/* styles.css */
+body {
+    margin: 0;
+    background: #d3d8eb; /* Color de fondo similar a la imagen */
+    display: flex;
+}
+
+
+.main-content {
+    flex: 1;
+    background-color: #c3cbde;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-container {
+    color: #D9D9D9;
+    margin-top: -15px;
+    text-align: center;
+    padding: 30px;
+}
+
+/* Fondo circular agregado */
+.profile-image-wrapper {
+    width: 190px;
+    height: 170px;
+    background-color: #e1e1e1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 10;
+}
+
+.profile-image {
+
+    overflow: hidden;
+    width: 50%;
+    height: 60%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-family:'Love Ya Like A Sister', cursive;
+    color: #2A2954;
+    font-size: 30px;
+    margin-bottom: 10px;
+
+}
+
+.profile-email {
+    font-family:'Love Ya Like A Sister', cursive;
+    color: #2A2954;
+    font-size: 30px;
+    margin-bottom: 30px;
+}
+
+.form-container {
+    background-color: #D9D9D9;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #000;
+    font-family: 'klee one'
+}
+
+input[type="password"],
+input[type="text"] {
+    background-color: #C4C7CF;
+    width: 100%;
+    padding: 10px 40px 10px 10px;
+    border: 1px solid #C4C7CF;
+    border-radius: 5px;
+    font-family: 'klee one';
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 10px;
+    top: 38;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.eye-icon:hover {
+    
+    opacity: 1;
+}
+
+
+.btn-save {
+    font-family: 'klee one';
+    font-size: 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(34, 55, 102, 0.68);
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+#boton-Guardar{
+     text-decoration: none;
+}
+
+/* ---------------------- */
+/* 🔹 RESPONSIVE DESIGN  */
+/* ---------------------- */
+
+/* 📱 Tabletas y móviles grandes (pantallas menores a 1024px) */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .logo-section img {
+        max-width: 300px; 
+    }
+
+    .login-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 30px;
+    }
+
+    button {
+        font-family:'';
+        max-width: 220px;
+        font-size: 18px;
+        height: 50px;
+    }
+}
+
+/* 📱 Móviles medianos (hasta 768px) */
+@media (max-width: 768px) {
+    .logo-section img {
+        max-width: 250px;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 350px;
+        padding: 25px;
+    }
+
+    .login-box h2 {
+        font-size: 1.8rem;
+    }
+
+    .login-box input {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    button {
+        max-width: 200px;
+        font-size: 16px;
+        height: 45px;
+    }
+}
+
+/* 📟 Dispositivos pequeños (hasta 480px) */
+@media (max-width: 480px) {
+    .container {
+        gap: 20px;
+    }
+
+    .logo-section img {
+        max-width: 180px;
+    }
+
+    .login-box {
+        padding: 20px;
+        max-width: 300px;
+    }
+
+    .login-box h2 {
+        font-size: 1.5rem;
+    }
+
+    .login-box input {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    button {
+        max-width: 180px;
+        font-size: 14px;
+        height: 40px;
+    }
+
+    .forgot-password, .no-cuenta {
+        font-size: 0.9rem;
+    }
+
+    .register-link {
+        font-size: 18px;
+    }
+}
