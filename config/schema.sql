@@ -183,3 +183,21 @@ CREATE TABLE IF NOT EXISTS payment_notifications (
     FOREIGN KEY (id_users) REFERENCES users(id_users) ON DELETE CASCADE ON UPDATE CASCADE,
     INDEX idx_notifications_status (notification_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =============================================
+-- PQR TABLE (Petitions, Complaints, Claims)
+-- =============================================
+CREATE TABLE IF NOT EXISTS pqr (
+    id_pqr BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_users BIGINT(20) UNSIGNED NOT NULL,
+    type ENUM('PETITION', 'COMPLAINT', 'CLAIM', 'SUGGESTION') NOT NULL,
+    description TEXT NOT NULL,
+    status ENUM('PENDING', 'IN_PROGRESS', 'RESOLVED', 'CLOSED') NOT NULL DEFAULT 'PENDING',
+    response TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_users) REFERENCES users(id_users) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX idx_pqr_status (status),
+    INDEX idx_pqr_user (id_users),
+    INDEX idx_pqr_type (type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

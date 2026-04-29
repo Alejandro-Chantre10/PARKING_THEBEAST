@@ -3,37 +3,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parqueadero</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Dashboard - Parking The Beasts</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            background-color: #f5f5f5;
+        }
+        .welcome-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .welcome-section h1 {
+            margin: 0 0 0.5rem 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0 0 0.5rem 0;
+            text-transform: uppercase;
+        }
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-card.active .number { color: #28a745; }
+        .stat-card.pending .number { color: #ffc107; }
+        .stat-card.completed .number { color: #17a2b8; }
+        .stat-card.total .number { color: #6c757d; }
+        .recent-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .recent-section h2 {
+            margin: 0 0 1rem 0;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+        .reservation-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .reservation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        .reservation-item:last-child {
+            border-bottom: none;
+        }
+        .reservation-info h4 {
+            margin: 0 0 0.25rem 0;
+            color: #333;
+        }
+        .reservation-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-badge.confirmed { background: #d4edda; color: #155724; }
+        .status-badge.pending { background: #fff3cd; color: #856404; }
+        .status-badge.completed { background: #cce5ff; color: #004085; }
+        .status-badge.cancelled { background: #f8d7da; color: #721c24; }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            background: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .action-btn .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Bienvenido al Sistema de Parqueadero</h1>
-        <nav>
-            <ul>
-                <li><a href="#">Inicio</a></li>
-                <li><a href="#">Reservas</a></li>
-                <li><a href="#">Tarifas</a></li>
-                <li><a href="#">Contacto</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section>
-            <h2>Sobre Nosotros</h2>
-            <p>Ofrecemos un servicio de parqueadero seguro, confiable y accesible para todos nuestros clientes.</p>
-        </section>
-        <section>
-            <h2>Servicios</h2>
-            <ul>
-                <li>Estacionamiento por hora</li>
-                <li>Planes mensuales</li>
-                <li>Reservas en línea</li>
-            </ul>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2023 Sistema de Parqueadero. Todos los derechos reservados.</p>
-    </footer>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <section class="welcome-section">
+                <h1>Bienvenido, <span id="user-name">Usuario</span></h1>
+                <p>Panel de control de Parking The Beasts</p>
+            </section>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card active">
+                    <h3>Reservas Activas</h3>
+                    <div class="number" id="active-count">0</div>
+                </div>
+                <div class="stat-card pending">
+                    <h3>Pendientes</h3>
+                    <div class="number" id="pending-count">0</div>
+                </div>
+                <div class="stat-card completed">
+                    <h3>Completadas</h3>
+                    <div class="number" id="completed-count">0</div>
+                </div>
+                <div class="stat-card total">
+                    <h3>Total Reservas</h3>
+                    <div class="number" id="total-count">0</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <section class="recent-section">
+                <h2>Acciones Rapidas</h2>
+                <div class="quick-actions">
+                    <a href="createReservation.html" class="action-btn">
+                        <span class="icon">+</span>
+                        <span>Nueva Reserva</span>
+                    </a>
+                    <a href="seeReservation.html" class="action-btn">
+                        <span class="icon">📋</span>
+                        <span>Mis Reservas</span>
+                    </a>
+                    <a href="rates.html" class="action-btn">
+                        <span class="icon">💰</span>
+                        <span>Ver Tarifas</span>
+                    </a>
+                    <a href="seePersonalData.html" class="action-btn">
+                        <span class="icon">👤</span>
+                        <span>Mi Perfil</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Recent Reservations -->
+            <section class="recent-section">
+                <h2>Reservas Recientes</h2>
+                <div id="recent-reservations" class="loading">
+                    Cargando reservas...
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication
+            const user = getCurrentUser();
+            if (!user) {
+                window.location.href = '../inicioSesion.html';
+                return;
+            }
+
+            // Update user name
+            document.getElementById('user-name').textContent = user.full_name || 'Usuario';
+
+            // Load sidebar
+            const sidebarContainer = document.getElementById('sidebar-container');
+            try {
+                const response = await fetch('sideBar.html');
+                const sidebarHtml = await response.text();
+                sidebarContainer.innerHTML = sidebarHtml;
+            } catch (error) {
+                console.error('Error loading sidebar:', error);
+            }
+
+            // Load reservations
+            await loadReservations();
+        });
+
+        async function loadReservations() {
+            const container = document.getElementById('recent-reservations');
+            
+            try {
+                const response = await ReservationsAPI.getList();
+                
+                if (response.success && response.data) {
+                    const reservations = response.data;
+                    
+                    // Update stats
+                    const stats = {
+                        active: reservations.filter(r => r.status === 'CONFIRMED').length,
+                        pending: reservations.filter(r => r.status === 'PENDING').length,
+                        completed: reservations.filter(r => r.status === 'COMPLETED').length,
+                        total: reservations.length
+                    };
+                    
+                    document.getElementById('active-count').textContent = stats.active;
+                    document.getElementById('pending-count').textContent = stats.pending;
+                    document.getElementById('completed-count').textContent = stats.completed;
+                    document.getElementById('total-count').textContent = stats.total;
+
+                    // Display recent reservations (last 5)
+                    const recent = reservations.slice(0, 5);
+                    
+                    if (recent.length === 0) {
+                        container.innerHTML = '<p class="empty-message">No tienes reservas aun. Crea tu primera reserva!</p>';
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <ul class="reservation-list">
+                            ${recent.map(r => `
+                                <li class="reservation-item">
+                                    <div class="reservation-info">
+                                        <h4>${r.vehicle_plate} - ${r.vehicle_type_name || 'Vehiculo'}</h4>
+                                        <p>${formatDate(r.start_at)} - ${formatDate(r.end_at)}</p>
+                                    </div>
+                                    <span class="status-badge ${r.status.toLowerCase()}">${translateStatus(r.status)}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    `;
+                } else {
+                    container.innerHTML = '<p class="empty-message">No se pudieron cargar las reservas.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading reservations:', error);
+                container.innerHTML = '<p class="empty-message">Error al cargar las reservas.</p>';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-CO', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function translateStatus(status) {
+            const translations = {
+                'PENDING': 'Pendiente',
+                'CONFIRMED': 'Confirmada',
+                'COMPLETED': 'Completada',
+                'CANCELLED': 'Cancelada'
+            };
+            return translations[status] || status;
+        }
+    </script>
 </body>
 </html>
