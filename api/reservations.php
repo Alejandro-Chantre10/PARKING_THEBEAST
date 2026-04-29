@@ -57,6 +57,12 @@ switch ($method) {
                     sendError('Tipo de vehículo y fechas son requeridos');
                 }
                 
+                // Convert datetime-local format to MySQL datetime
+                $startAt = str_replace('T', ' ', $startAt);
+                $endAt = str_replace('T', ' ', $endAt);
+                if (strlen($startAt) == 16) $startAt .= ':00';
+                if (strlen($endAt) == 16) $endAt .= ':00';
+                
                 $result = $controller->checkAvailability($facilityId, $vehicleTypeId, $startAt, $endAt);
                 sendResponse($result);
                 break;
@@ -70,6 +76,12 @@ switch ($method) {
                 if (!$vehicleTypeId || !$startAt || !$endAt) {
                     sendError('Tipo de vehículo y fechas son requeridos');
                 }
+                
+                // Convert datetime-local format to MySQL datetime
+                $startAt = str_replace('T', ' ', $startAt);
+                $endAt = str_replace('T', ' ', $endAt);
+                if (strlen($startAt) == 16) $startAt .= ':00';
+                if (strlen($endAt) == 16) $endAt .= ':00';
                 
                 $result = $controller->calculatePrice($facilityId, $vehicleTypeId, $startAt, $endAt);
                 sendResponse($result);
