@@ -4,8 +4,47 @@
  * Handles authentication endpoints: login, register, logout
  */
 
-require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/../app/controllers/usuario_controller.php';
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
+// Set JSON header first
+header('Content-Type: application/json; charset=UTF-8');
+
+// Custom error handler to return JSON
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error PHP: ' . $errstr,
+        'file' => basename($errfile),
+        'line' => $errline
+    ]);
+    exit();
+});
+
+// Custom exception handler
+set_exception_handler(function($e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Excepción: ' . $e->getMessage(),
+        'file' => basename($e->getFile()),
+        'line' => $e->getLine()
+    ]);
+    exit();
+});
+
+try {
+    require_once __DIR__ . '/helpers.php';
+    require_once __DIR__ . '/../app/controllers/usuario_controller.php';
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error al cargar archivos: ' . $e->getMessage()
+    ]);
+    exit();
+}
 
 setApiHeaders();
 
