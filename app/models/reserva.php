@@ -258,13 +258,14 @@ class ReservationModel {
         }
         
         // Count existing reservations for the time slot
+        // Use different parameter names since PDO doesn't allow reusing the same named parameter
         $sql = "SELECT COUNT(*) as count FROM {$this->table} 
                 WHERE facility_id = :facility_id 
                 AND vehicle_type_id = :vehicle_type_id
                 AND status IN ('PENDING', 'CONFIRMED')
-                AND ((start_at <= :start_at AND end_at > :start_at)
-                     OR (start_at < :end_at AND end_at >= :end_at)
-                     OR (start_at >= :start_at AND end_at <= :end_at))";
+                AND ((start_at <= :start_at1 AND end_at > :start_at2)
+                     OR (start_at < :end_at1 AND end_at >= :end_at2)
+                     OR (start_at >= :start_at3 AND end_at <= :end_at3))";
         
         if ($excludeReservationId) {
             $sql .= " AND id != :exclude_id";
@@ -274,8 +275,12 @@ class ReservationModel {
         $params = [
             ':facility_id'     => $facilityId,
             ':vehicle_type_id' => $vehicleTypeId,
-            ':start_at'        => $startAt,
-            ':end_at'          => $endAt
+            ':start_at1'       => $startAt,
+            ':start_at2'       => $startAt,
+            ':start_at3'       => $startAt,
+            ':end_at1'         => $endAt,
+            ':end_at2'         => $endAt,
+            ':end_at3'         => $endAt
         ];
         if ($excludeReservationId) {
             $params[':exclude_id'] = $excludeReservationId;
