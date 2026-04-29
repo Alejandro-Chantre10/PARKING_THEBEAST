@@ -1,79 +1,231 @@
-<html lang="en">
-
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Actualizar Reserva - Parking The Beasts</title>
     <link rel="stylesheet" href="../styles/updateReservation.css">
     <link rel="stylesheet" href="../styles/sideBar.css">
 </head>
 
 <body>
-
-        <div id="menu-container"></div>
-        <div class="main-content">
-            <div class="update-reservation">
-                <div class="update-header">
-                    <h2>Actualizar reserva</h2>
-                    <button class="close-btn">X</button>
-                </div>
-                <form>
-                    <label>Número de reserva</label>
-                    <input type="text" value="001" disabled>
-
-                    <label>Placa</label>
-                    <input type="text" value="MWS31H" disabled>
-
-                    <label>Hora ingreso</label>
-                    <div class="time-select">
-                        <select>
-                            <option>Hora</option>
-                            <option>01</option>
-                            <option>02</option>
-                            <option>03</option>
-                        </select>
-                        <select>
-                            <option>Minutos</option>
-                            <option>00</option>
-                            <option>15</option>
-                            <option>30</option>
-                        </select>
-                    </div>
-
-                    <label>*Fecha de reserva</label>
-                    <div class="date-select">
-                        <select>
-                            <option>Día</option>
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                        </select>
-                        <select>
-                            <option>Mes</option>
-                            <option>Enero</option>
-                            <option>Febrero</option>
-                        </select>
-                        <select>
-                            <option>Año</option>
-                            <option>2024</option>
-                            <option>2025</option>
-                        </select>
-                    </div>
-
-
-                    <label>Vehículo</label>
-                    <div class="vehicle-buttons">
-                        <button type="button">Carro</button>
-                        <button type="button">Moto</button>
-                        <button type="button">Bicicleta</button>
-                    </div>
-
-                    <a href="seeReservation.html"class="save-btn">Guardar</a>
-                </form>
+    <div id="menu-container"></div>
+    <div class="main-content">
+        <div class="update-reservation">
+            <div class="update-header">
+                <h2>Actualizar reserva</h2>
+                <button class="close-btn" onclick="window.location.href='seeReservation.html'">X</button>
             </div>
+            <form id="updateReservationForm">
+                <label>Numero de reserva</label>
+                <input type="text" id="reservationId" disabled>
+
+                <label>Placa del vehiculo</label>
+                <input type="text" id="vehiclePlate" required maxlength="10" style="text-transform: uppercase;">
+
+                <label>Descripcion del vehiculo (opcional)</label>
+                <input type="text" id="vehicleDescription" placeholder="Ej: Mazda 3 color rojo">
+
+                <label>Fecha y hora de ingreso</label>
+                <input type="datetime-local" id="startAt" required>
+
+                <label>Fecha y hora de salida</label>
+                <input type="datetime-local" id="endAt" required>
+
+                <label>Tipo de vehiculo</label>
+                <div class="vehicle-buttons" id="vehicleTypeButtons">
+                    <!-- Vehicle types will be loaded dynamically -->
+                </div>
+                <input type="hidden" id="selectedVehicleType" required>
+
+                <label>Notas adicionales (opcional)</label>
+                <textarea id="notes" rows="2" placeholder="Alguna nota especial..."></textarea>
+
+                <button type="submit" class="save-btn" id="submitBtn">Guardar Cambios</button>
+            </form>
+            <div id="errorMessage" class="error-message" style="display: none; color: red; margin-top: 10px;"></div>
         </div>
+    </div>
 
     <script src="../js/sideBar.js"></script>
-</body>
+    <script src="../js/api.js"></script>
+    <script>
+        let currentReservationId = null;
+        let currentReservation = null;
 
+        // Check authentication and load reservation on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!requireLogin()) return;
+            
+            // Get reservation ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentReservationId = urlParams.get('id');
+            
+            if (!currentReservationId) {
+                showNotification('Reserva no especificada', 'error');
+                window.location.href = 'seeReservation.html';
+                return;
+            }
+            
+            await loadVehicleTypes();
+            await loadReservation(currentReservationId);
+            setMinDateTime();
+        });
+
+        // Set minimum datetime to now
+        function setMinDateTime() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const minDateTime = now.toISOString().slice(0, 16);
+            document.getElementById('startAt').min = minDateTime;
+            document.getElementById('endAt').min = minDateTime;
+        }
+
+        // Load vehicle types
+        async function loadVehicleTypes() {
+            try {
+                const result = await VehicleTypesAPI.getList();
+                if (result.success && result.vehicle_types) {
+                    const container = document.getElementById('vehicleTypeButtons');
+                    container.innerHTML = '';
+                    
+                    result.vehicle_types.forEach(type => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.textContent = type.name;
+                        btn.dataset.id = type.id_vehicle_types;
+                        btn.onclick = () => selectVehicleType(type.id_vehicle_types, btn);
+                        container.appendChild(btn);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading vehicle types:', error);
+            }
+        }
+
+        // Load reservation data
+        async function loadReservation(id) {
+            try {
+                const result = await ReservationsAPI.getById(id);
+                
+                if (result.success && result.reservation) {
+                    currentReservation = result.reservation;
+                    const r = currentReservation;
+                    
+                    document.getElementById('reservationId').value = String(r.id_reservations).padStart(6, '0');
+                    document.getElementById('vehiclePlate').value = r.vehicle_plate;
+                    document.getElementById('vehicleDescription').value = r.vehicle_description || '';
+                    document.getElementById('notes').value = r.notes || '';
+                    
+                    // Format dates for datetime-local input
+                    document.getElementById('startAt').value = r.start_at.replace(' ', 'T').slice(0, 16);
+                    document.getElementById('endAt').value = r.end_at.replace(' ', 'T').slice(0, 16);
+                    
+                    // Select vehicle type
+                    document.getElementById('selectedVehicleType').value = r.id_vehicle_types;
+                    
+                    // Highlight selected vehicle type button
+                    setTimeout(() => {
+                        const btn = document.querySelector(`[data-id="${r.id_vehicle_types}"]`);
+                        if (btn) {
+                            btn.classList.add('active');
+                            btn.style.backgroundColor = '#5c6bc0';
+                            btn.style.color = 'white';
+                        }
+                    }, 100);
+                    
+                    // Check if reservation can be edited
+                    if (!['PENDING', 'CONFIRMED'].includes(r.status)) {
+                        document.getElementById('submitBtn').disabled = true;
+                        document.getElementById('submitBtn').textContent = 'No se puede editar';
+                        document.getElementById('submitBtn').style.backgroundColor = '#999';
+                    }
+                } else {
+                    showNotification('No se pudo cargar la reserva', 'error');
+                    window.location.href = 'seeReservation.html';
+                }
+            } catch (error) {
+                console.error('Error loading reservation:', error);
+                showNotification('Error al cargar la reserva', 'error');
+            }
+        }
+
+        // Select vehicle type
+        function selectVehicleType(id, button) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.vehicle-buttons button').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = '';
+                btn.style.color = '';
+            });
+            
+            // Add active class to selected button
+            button.classList.add('active');
+            button.style.backgroundColor = '#5c6bc0';
+            button.style.color = 'white';
+            
+            document.getElementById('selectedVehicleType').value = id;
+        }
+
+        // Form submission
+        document.getElementById('updateReservationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const vehicleTypeId = document.getElementById('selectedVehicleType').value;
+            const vehiclePlate = document.getElementById('vehiclePlate').value.toUpperCase();
+            const vehicleDescription = document.getElementById('vehicleDescription').value;
+            const startAt = document.getElementById('startAt').value;
+            const endAt = document.getElementById('endAt').value;
+            const notes = document.getElementById('notes').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Validate vehicle type selection
+            if (!vehicleTypeId) {
+                errorDiv.textContent = 'Por favor seleccione un tipo de vehiculo';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Validate dates
+            if (new Date(endAt) <= new Date(startAt)) {
+                errorDiv.textContent = 'La fecha de salida debe ser posterior a la fecha de ingreso';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Guardando...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const result = await ReservationsAPI.update(currentReservationId, {
+                    id_vehicle_types: vehicleTypeId,
+                    vehicle_plate: vehiclePlate,
+                    vehicle_description: vehicleDescription,
+                    start_at: startAt,
+                    end_at: endAt,
+                    notes: notes
+                });
+                
+                if (result.success) {
+                    showNotification('Reserva actualizada exitosamente!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'seeReservation.html';
+                    }, 1500);
+                } else {
+                    errorDiv.textContent = result.message || 'Error al actualizar la reserva';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Error de conexion. Intente nuevamente.';
+                errorDiv.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Guardar Cambios';
+            }
+        });
+    </script>
+</body>
 </html>

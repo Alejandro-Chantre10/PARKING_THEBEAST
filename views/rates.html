@@ -1,84 +1,148 @@
-<html lang="en">
-
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Tarifas - Parking The Beasts</title>
     <link rel="stylesheet" href="../styles/seeReservation.css">
     <link rel="stylesheet" href="../styles/sideBar.css">
+    <style>
+        .rates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .rate-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .rate-card:hover {
+            transform: translateY(-5px);
+        }
+        .rate-card h3 {
+            color: #5c6bc0;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .rate-price {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0;
+        }
+        .rate-price span {
+            font-size: 16px;
+            color: #666;
+        }
+        .rate-details {
+            text-align: left;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .rate-details p {
+            margin: 8px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .rate-details strong {
+            color: #333;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .vehicle-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 
 <body>
-
-        <div id="menu-container"></div>
-        <div class="main-content">
-            <div class="update-reservation">
-              <div class="update-header">
+    <div id="menu-container"></div>
+    <div class="main-content">
+        <div class="update-reservation">
+            <div class="update-header">
                 <h2>TARIFAS</h2>
-                <button class="close-btn">X</button>
-              </div>
-          
-              <table class="reservation-table">
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>CARRO</th>
-                    <th>MOTO</th>
-                    <th>BICICLETA</th>
-                    <th>ACCION</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>001</td>
-                    <td>ADS00G</td>
-                    <td>8:00 pm</td>
-                    <td>12/03/2025</td>
-                    <td>Carro</td>
-                    <td class="actions-cell">
-                        <button onclick="Reserva('descargar')" class="action-btn">
-                            <img src="../images/descarga-de-archivos.png" alt="descargar" class="icon-img">
-                          </button>
-                        <button onclick="Reserva('editar')" class="action-btn">
-                          <img src="../images/editar.png" alt="Editar" class="icon-img">
-                        </button>
-                        <button onclick="Reserva('eliminar')" class="action-btn">
-                          <img src="../images/eliminar.png" alt="Eliminar" class="icon-img">
-                        </button>
-                      </td>
-                  </tr>
-                  <tr>
-                    <td>002</td>
-                    <td>MWS34D</td>
-                    <td>8:00 pm</td>
-                    <td>12/03/2025</td>
-                    <td>Moto</td>
-                    <td class="actions-cell">
-                        <button class="action-btn">
-                            <img src="../images/descarga-de-archivos.png" alt="descargar" class="icon-img">
-                          </button>
-                        <button class="action-btn">
-                          <img src="../images/editar.png" alt="Editar" class="icon-img">
-                        </button>
-                        <button class="action-btn">
-                          <img src="../images/eliminar.png" alt="Eliminar" class="icon-img">
-                        </button>
-                      </td>
-                      
-                  </tr>
-                  <!-- Fila vacía decorativa -->
-                  <tr>
-                    <td colspan="6">&nbsp;</td>
-                  </tr>
-                </tbody>
-              </table>
+                <button class="close-btn" onclick="window.location.href='seeReservation.html'">X</button>
             </div>
-          </div>
-          
+
+            <div id="loadingState" class="loading">Cargando tarifas...</div>
+            
+            <div class="rates-grid" id="ratesGrid" style="display: none;">
+                <!-- Rates will be loaded here -->
+            </div>
+        </div>
+    </div>
 
     <script src="../js/sideBar.js"></script>
-    <script src="../js/reserva.js"></script>
-    
-</body>
+    <script src="../js/api.js"></script>
+    <script>
+        // Load rates on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadRates();
+        });
 
+        // Get vehicle icon
+        function getVehicleIcon(code) {
+            const icons = {
+                'CAR': '&#128663;',
+                'MOTO': '&#127949;',
+                'BIKE': '&#128690;'
+            };
+            return icons[code] || '&#128663;';
+        }
+
+        // Load rates
+        async function loadRates() {
+            const loadingDiv = document.getElementById('loadingState');
+            const grid = document.getElementById('ratesGrid');
+
+            try {
+                const result = await RatesAPI.getList();
+                
+                loadingDiv.style.display = 'none';
+                
+                if (result.success && result.rates && result.rates.length > 0) {
+                    grid.style.display = 'grid';
+                    grid.innerHTML = '';
+                    
+                    result.rates.forEach(rate => {
+                        const card = document.createElement('div');
+                        card.className = 'rate-card';
+                        
+                        card.innerHTML = `
+                            <div class="vehicle-icon">${getVehicleIcon(rate.vehicle_type_code)}</div>
+                            <h3>${rate.vehicle_type_name}</h3>
+                            <div class="rate-price">
+                                ${formatCurrency(rate.price_per_hour)}
+                                <span>/ hora</span>
+                            </div>
+                            <div class="rate-details">
+                                <p><strong>Tiempo minimo:</strong> ${rate.min_minutes} minutos</p>
+                                <p><strong>Redondeo:</strong> Cada ${rate.rounding_minutes} minutos</p>
+                                <p><strong>Tiempo de gracia:</strong> ${rate.grace_minutes} minutos</p>
+                                <p><strong>Ubicacion:</strong> ${rate.facility_name}</p>
+                            </div>
+                        `;
+                        
+                        grid.appendChild(card);
+                    });
+                } else {
+                    loadingDiv.textContent = 'No hay tarifas disponibles';
+                }
+            } catch (error) {
+                loadingDiv.textContent = 'Error al cargar las tarifas';
+                console.error('Error loading rates:', error);
+            }
+        }
+    </script>
+</body>
 </html>

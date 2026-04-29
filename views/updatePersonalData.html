@@ -1,73 +1,135 @@
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="../styles/updatePersonalData.css" />
-    <link rel="stylesheet" href="../styles/sideBar.css" />
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Datos - Parking The Beasts</title>
+    <link rel="stylesheet" href="../styles/updatePersonalData.css">
+    <link rel="stylesheet" href="../styles/sideBar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
 
-  </head>
-
-  <body>
+<body>
     <div id="menu-container"></div>
     <div class="main-content">
-      <div class="profile-container">
         <div class="profile-container">
-            <label for="file-input" class="profile-label">
-              <div class="profile-photo">
-                <span>Agregar<br>foto<br>de perfil</span>
-              </div>
-              <div class="edit-icon">
-                <i class="fas fa-pen"></i>
-              </div>
-            </label>
-            <input type="file" id="file-input" style="display: none" />
-          </div>
-          
+            <div class="profile-container">
+                <label for="file-input" class="profile-label">
+                    <div class="profile-photo">
+                        <span>Agregar<br>foto<br>de perfil</span>
+                    </div>
+                    <div class="edit-icon">
+                        <i class="fas fa-pen"></i>
+                    </div>
+                </label>
+                <input type="file" id="file-input" style="display: none" accept="image/*">
+            </div>
 
-        <div class="form-container">
-          <div class="form-group">
-            <label>Nombres</label>
-            <input id="current-password" type="text" />
-          </div>
+            <div class="form-container">
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="firstName">Nombres</label>
+                        <input id="firstName" type="text" required>
+                    </div>
 
-          <div class="form-group">
-            <label>Apellidos</label>
-            <input id="new-password" type="password" />
-          </div>
+                    <div class="form-group">
+                        <label for="lastName">Apellidos</label>
+                        <input id="lastName" type="text" required>
+                    </div>
 
-          <div class="form-group">
-            <label>Correo</label>
-            <input id="confirm-password" type="password"/>
-          </div>
+                    <div class="form-group">
+                        <label for="email">Correo</label>
+                        <input id="email" type="email" disabled style="background-color: #f5f5f5;">
+                        <small style="color: #666; font-size: 12px;">El correo no se puede modificar</small>
+                    </div>
 
-          <div class="form-group">
-            <label>Telefono</label>
-            <input id="confirm-password" type="password" />
-          </div>
-          <div class="form-group">
-            <label>Telefono</label>
-            <input id="confirm-password" type="password" />
-          </div>
+                    <div class="form-group">
+                        <label for="phone">Telefono</label>
+                        <input id="phone" type="tel" placeholder="Ej: 3001234567">
+                    </div>
 
-          <button class="btn-save" type="button">Guardar</button>
+                    <div id="errorMessage" style="display: none; color: red; margin: 10px 0; text-align: center;"></div>
+                    <div id="successMessage" style="display: none; color: green; margin: 10px 0; text-align: center;"></div>
+
+                    <button class="btn-save" type="submit" id="submitBtn">Guardar</button>
+                </form>
+            </div>
         </div>
-      </div>
-
-      <script>
-        function togglePassword(icon) {
-          const input = icon.previousElementSibling;
-          const isPassword = input.type === "password";
-
-          input.type = isPassword ? "text" : "password";
-          icon.src = isPassword
-            ? "../images/ojo off.png"
-            : "../images/ojos on.png";
-          icon.alt = isPassword ? "Ocultar" : "Mostrar";
-        }
-      </script>
     </div>
+
     <script src="../js/sideBar.js"></script>
-  </body>
+    <script src="../js/api.js"></script>
+    <script>
+        // Load user data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!requireLogin()) return;
+            
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('firstName').value = user.first_name || '';
+                document.getElementById('lastName').value = user.last_name || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('phone').value = user.phone || '';
+            }
+        });
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Reset messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            // Validate required fields
+            if (!firstName || !lastName) {
+                errorDiv.textContent = 'Nombres y apellidos son requeridos';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Guardando...';
+            
+            try {
+                const result = await UsersAPI.updateProfile({
+                    first_name: firstName,
+                    last_name: lastName,
+                    phone: phone
+                });
+                
+                if (result.success) {
+                    // Update local storage with new user data
+                    const currentUser = getCurrentUser();
+                    if (currentUser) {
+                        currentUser.first_name = firstName;
+                        currentUser.last_name = lastName;
+                        currentUser.phone = phone;
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+                    }
+                    
+                    successDiv.textContent = 'Datos actualizados exitosamente!';
+                    successDiv.style.display = 'block';
+                } else {
+                    errorDiv.textContent = result.message || 'Error al actualizar los datos';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Error de conexion. Intente nuevamente.';
+                errorDiv.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Guardar';
+            }
+        });
+    </script>
+</body>
 </html>

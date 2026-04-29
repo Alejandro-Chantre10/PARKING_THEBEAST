@@ -1,62 +1,262 @@
 <?php
-require_once 'models/UserModel.php';
+/**
+ * User Controller - Parking The Beasts
+ * Handles user-related requests (registration, login, profile)
+ */
+
+require_once __DIR__ . '/../models/usuario.php';
 
 class UserController {
     private $userModel;
 
-    public function __construct($db) {
-        $this->userModel = new UserModel($db);
+    public function __construct() {
+        $this->userModel = new UserModel();
     }
 
-    // Lógica para registrarse
-    public function register() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $data = [
-                'role_id'   => 2,
-                'full_name' => $_POST['full_name'],
-                'email'     => $_POST['email'],
-                'password'  => $_POST['password'],
-                'phone'     => $_POST['phone']
+    /**
+     * Register a new user
+     */
+    public function register($data) {
+        // Validate required fields
+        if (empty($data['full_name']) || empty($data['email']) || empty($data['password'])) {
+            return [
+                'success' => false,
+                'message' => 'Nombre, email y contraseña son requeridos'
             ];
-
-            if ($this->userModel->create($data)) {
-                header("Location: login.php?success=registered");
-            } else {
-                echo "Error al registrar usuario.";
-            }
         }
+
+        // Validate email format
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            return [
+                'success' => false,
+                'message' => 'Email inválido'
+            ];
+        }
+
+        // Check if email already exists
+        if ($this->userModel->emailExists($data['email'])) {
+            return [
+                'success' => false,
+                'message' => 'El email ya está registrado'
+            ];
+        }
+
+        // Validate password length
+        if (strlen($data['password']) < 6) {
+            return [
+                'success' => false,
+                'message' => 'La contraseña debe tener al menos 6 caracteres'
+            ];
+        }
+
+        // Create user
+        $userId = $this->userModel->create([
+            'id_rol'    => 2, // Default USER role
+            'full_name' => $data['full_name'],
+            'email'     => $data['email'],
+            'password'  => $data['password'],
+            'phone'     => $data['phone'] ?? ''
+        ]);
+
+        if ($userId) {
+            return [
+                'success' => true,
+                'message' => 'Usuario registrado exitosamente',
+                'user_id' => $userId
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Error al registrar usuario'
+        ];
     }
 
-    // Lógica para iniciar sesión
-    public function login() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $email = $_POST['email'];
-            $password = $_POST['password'];
-
-            $user = $this->userModel->findByEmail($email);
-
-            if ($user && password_verify($password, $user['password_hash'])) {
-                // Iniciar sesión global
-                session_start();
-                $_SESSION['user_id']   = $user['id'];
-                $_SESSION['user_name'] = $user['full_name'];
-                $_SESSION['role']      = $user['role_code'];
-
-                // Redirigir según rol
-                if ($user['role_code'] === 'ADMIN') {
-                    header("Location: admin_dashboard.php");
-                } else {
-                    header("Location: user_dashboard.php");
-                }
-            } else {
-                echo "Credenciales incorrectas o cuenta inactiva."; 
-            }
+    /**
+     * Login user
+     */
+    public function login($email, $password) {
+        if (empty($email) || empty($password)) {
+            return [
+                'success' => false,
+                'message' => 'Email y contraseña son requeridos'
+            ];
         }
+
+        $user = $this->userModel->findByEmail($email);
+
+        if (!$user) {
+            return [
+                'success' => false,
+                'message' => 'Credenciales incorrectas'
+            ];
+        }
+
+        if (!password_verify($password, $user['password_hash'])) {
+            return [
+                'success' => false,
+                'message' => 'Credenciales incorrectas'
+            ];
+        }
+
+        // Start session
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $_SESSION['user_id']   = $user['id_users'];
+        $_SESSION['user_name'] = $user['full_name'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['role']      = $user['role_code'];
+
+        return [
+            'success' => true,
+            'message' => 'Inicio de sesión exitoso',
+            'user' => [
+                'id'        => $user['id_users'],
+                'full_name' => $user['full_name'],
+                'email'     => $user['email'],
+                'role'      => $user['role_code']
+            ]
+        ];
     }
 
+    /**
+     * Logout user
+     */
     public function logout() {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         session_destroy();
-        header("Location: index.php");
+        
+        return [
+            'success' => true,
+            'message' => 'Sesión cerrada exitosamente'
+        ];
+    }
+
+    /**
+     * Get current user profile
+     */
+    public function getProfile($userId) {
+        $user = $this->userModel->getById($userId);
+        
+        if (!$user) {
+            return [
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'user' => $user
+        ];
+    }
+
+    /**
+     * Update user profile
+     */
+    public function updateProfile($userId, $data) {
+        if (empty($data['full_name'])) {
+            return [
+                'success' => false,
+                'message' => 'El nombre es requerido'
+            ];
+        }
+
+        $result = $this->userModel->update($userId, [
+            'full_name' => $data['full_name'],
+            'phone'     => $data['phone'] ?? ''
+        ]);
+
+        if ($result) {
+            return [
+                'success' => true,
+                'message' => 'Perfil actualizado exitosamente'
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Error al actualizar perfil'
+        ];
+    }
+
+    /**
+     * Update user password
+     */
+    public function updatePassword($userId, $currentPassword, $newPassword) {
+        if (empty($currentPassword) || empty($newPassword)) {
+            return [
+                'success' => false,
+                'message' => 'Contraseña actual y nueva son requeridas'
+            ];
+        }
+
+        if (strlen($newPassword) < 6) {
+            return [
+                'success' => false,
+                'message' => 'La nueva contraseña debe tener al menos 6 caracteres'
+            ];
+        }
+
+        // Verify current password
+        if (!$this->userModel->verifyPassword($userId, $currentPassword)) {
+            return [
+                'success' => false,
+                'message' => 'Contraseña actual incorrecta'
+            ];
+        }
+
+        $result = $this->userModel->updatePassword($userId, $newPassword);
+
+        if ($result) {
+            return [
+                'success' => true,
+                'message' => 'Contraseña actualizada exitosamente'
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Error al actualizar contraseña'
+        ];
+    }
+
+    /**
+     * Deactivate user account
+     */
+    public function deactivateAccount($userId) {
+        $result = $this->userModel->deactivate($userId);
+
+        if ($result) {
+            // Logout user
+            $this->logout();
+            
+            return [
+                'success' => true,
+                'message' => 'Cuenta desactivada exitosamente'
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Error al desactivar cuenta'
+        ];
+    }
+
+    /**
+     * Get all users (Admin only)
+     */
+    public function getAllUsers($limit = 50, $offset = 0) {
+        $users = $this->userModel->getAll($limit, $offset);
+        
+        return [
+            'success' => true,
+            'users' => $users
+        ];
     }
 }
+?>

@@ -1,35 +1,78 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<button id="show-sidebar-btn" class="floating-button hidden">☰</button>
+<button id="show-sidebar-btn" class="floating-button hidden">&#9776;</button>
 
 <nav class="sidebar">
     <div class="top-bar">
-    <div class="menu-icon" id="toggle-menu">
-        <i class="fas fa-bars"></i> <!-- Ícono de menú -->
-    </div>
-     <!-- Botón Home -->
-     <button class="home-btn" onclick="location.href='../index.html'">
-        HOME <i class="fas fa-home"></i>
-    </button>
+        <div class="menu-icon" id="toggle-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+        <!-- Boton Home -->
+        <button class="home-btn" onclick="location.href='../index.html'">
+            HOME <i class="fas fa-home"></i>
+        </button>
     </div>
 
-    <!-- Información del usuario -->
+    <!-- Informacion del usuario -->
     <div class="user-info">
         <div class="top-bar">
-        <div class="avatar">N</div>
-        <span class="user-name">NOMBRE APELLIDO</span>
-    </div>
+            <div class="avatar" id="userAvatar">U</div>
+            <span class="user-name" id="sidebarUserName">Usuario</span>
+        </div>
     </div>
 
-    <!-- Botón de Crear Reserva -->
-    <button class="dropdown-btn">PARKING THE BEAST</button>
+    <!-- Boton principal -->
+    <button class="dropdown-btn" onclick="location.href='createReservation.html'">+ NUEVA RESERVA</button>
 
-    <!-- Menú de navegación -->
+    <!-- Menu de navegacion -->
     <ul class="menu">
-        <li><a href="seeReservation.html">Ver Reservas</a></li>
-        <li><a href="seePersonalData.html">Configuración</a></li>
-        <li><a href="createPQR.html">PQR</a></li>
+        <li><a href="seeReservation.html"><i class="fas fa-list"></i> Ver Reservas</a></li>
+        <li><a href="userPayment.html"><i class="fas fa-credit-card"></i> Mis Pagos</a></li>
+        <li><a href="rates.html"><i class="fas fa-dollar-sign"></i> Tarifas</a></li>
+        <li><a href="seePersonalData.html"><i class="fas fa-cog"></i> Mi Perfil</a></li>
+        <li><a href="createPQR.html"><i class="fas fa-question-circle"></i> PQR</a></li>
     </ul>
-    <div class="logo">
-        
+    
+    <div class="logout-section" style="margin-top: auto; padding: 20px;">
+        <button onclick="sidebarLogout()" style="width: 100%; padding: 10px; background: #c62828; color: white; border: none; border-radius: 8px; cursor: pointer;">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesion
+        </button>
     </div>
 </nav>
+
+<script>
+    // Load user info in sidebar after DOM is loaded
+    function loadSidebarUserInfo() {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                const userName = document.getElementById('sidebarUserName');
+                const avatar = document.getElementById('userAvatar');
+                
+                const fullName = (user.first_name && user.last_name) 
+                    ? `${user.first_name} ${user.last_name}` 
+                    : user.full_name || 'Usuario';
+                
+                if (userName) userName.textContent = fullName;
+                if (avatar) avatar.textContent = fullName.charAt(0).toUpperCase();
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+        }
+    }
+
+    // Call after a small delay to ensure sidebar is loaded
+    setTimeout(loadSidebarUserInfo, 100);
+
+    // Sidebar logout function
+    function sidebarLogout() {
+        // Clear all storage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        
+        // Redirect to login
+        window.location.href = '../inicioSesion.html';
+    }
+</script>

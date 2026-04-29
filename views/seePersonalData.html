@@ -1,76 +1,100 @@
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="../styles/personalData.css" />
-    <link rel="stylesheet" href="../styles/sideBar.css" />
-  </head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Parking The Beasts</title>
+    <link rel="stylesheet" href="../styles/personalData.css">
+    <link rel="stylesheet" href="../styles/sideBar.css">
+</head>
 
-  <body>
+<body>
     <div id="menu-container"></div>
     <div class="main-content">
-      <div class="profile-container">
-        <div class="profile-image-wrapper">
-          <img
-            src="../images/ICONO USUARIO.png"
-            alt="Imagen de perfil"
-            class="profile-image"
-          />
+        <div class="profile-container">
+            <div class="profile-image-wrapper">
+                <img src="../images/ICONO USUARIO.png" alt="Imagen de perfil" class="profile-image">
+            </div>
+            <div class="profile-name" id="userName">Cargando...</div>
+
+            <div class="form-container">
+                <div class="form-group">
+                    <label>Nombre completo</label>
+                    <input id="fullName" type="text" placeholder="Nombre" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Correo electronico</label>
+                    <input id="email" type="email" placeholder="Correo" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Telefono</label>
+                    <input id="phone" type="text" placeholder="Telefono" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Rol</label>
+                    <input id="role" type="text" placeholder="Rol" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Miembro desde</label>
+                    <input id="createdAt" type="text" placeholder="Fecha registro" readonly>
+                </div>
+
+                <a href="updatePersonalData.html" class="btn-save" type="button">Editar perfil</a>
+                <a href="updatePassword.html" class="btn-save" type="button">Cambiar contrasena</a>
+                <button class="btn-save" style="background-color: #c62828;" onclick="logout()">Cerrar sesion</button>
+            </div>
         </div>
-        <div class="profile-name">NOMBRE APELLIDO</div>
-
-        <div class="form-container">
-          <div class="form-group">
-            <input id="current-password" type="text" placeholder="Nombres" />
-          </div>
-
-          <div class="form-group">
-            <input id="new-password" type="password" placeholder="Apellidos" />
-          </div>
-
-          <div class="form-group">
-            <input id="confirm-password" type="password" placeholder="Cedula" />
-          </div>
-
-          <div class="form-group">
-            <input id="confirm-password" type="password" placeholder="Correo" />
-          </div>
-
-          <div class="form-group">
-            <input
-              id="confirm-password"
-              type="password"
-              placeholder="Telefono"
-            />
-          </div>
-
-          <div class="form-group">
-            <input
-              id="confirm-password"
-              type="password"
-              placeholder="Dirección"
-            />
-          </div>
-
-          <a href="updatePersonalData.html" class="btn-save" type="button" id="boton-Guardar">Editar perfil</a>
-          <a href="updatePassword.html" class="btn-save" type="button" id="boton-Guardar">Cambiar contraseña</a>
-        </div>
-      </div>
-
-      <script>
-        function togglePassword(icon) {
-          const input = icon.previousElementSibling;
-          const isPassword = input.type === "password";
-
-          input.type = isPassword ? "text" : "password";
-          icon.src = isPassword
-            ? "../images/ojo off.png"
-            : "../images/ojos on.png";
-          icon.alt = isPassword ? "Ocultar" : "Mostrar";
-        }
-      </script>
     </div>
+    
     <script src="../js/sideBar.js"></script>
-  </body>
+    <script src="../js/api.js"></script>
+    <script>
+        // Load user profile on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!requireLogin()) return;
+            await loadProfile();
+        });
+
+        // Load user profile
+        async function loadProfile() {
+            try {
+                const result = await UsersAPI.getProfile();
+                
+                if (result.success && result.user) {
+                    const user = result.user;
+                    
+                    document.getElementById('userName').textContent = user.full_name;
+                    document.getElementById('fullName').value = user.full_name;
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('phone').value = user.phone || 'No registrado';
+                    document.getElementById('role').value = user.role_name || 'Usuario';
+                    document.getElementById('createdAt').value = formatDate(user.created_at);
+                } else {
+                    showNotification('Error al cargar el perfil', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showNotification('Error de conexion', 'error');
+            }
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                await AuthAPI.logout();
+                clearUserSession();
+                window.location.href = '../inicioSesion.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+                // Force logout even if API fails
+                clearUserSession();
+                window.location.href = '../inicioSesion.html';
+            }
+        }
+    </script>
+</body>
 </html>

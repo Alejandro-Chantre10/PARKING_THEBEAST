@@ -3,32 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Parking The Beasts</title>
+    <title>Registro - Parking The Beasts</title>
     <link rel="stylesheet" href="styles/registro.css">
-    
 </head>
 <body>
     <div class="container">
-        <!-- Sección del Logo -->
+        <!-- Seccion del Logo -->
         <div class="logo-section">
             <img src="images/LogoInicio.png" alt="Parking The Beasts Logo">
         </div>
 
-        <!-- Sección de Login -->
+        <!-- Seccion de Registro -->
         <div class="login-box">
             <div class="title-inicio">
-            <h2>Registro</h2>
+                <h2>Registro</h2>
             </div>
-            <form action="app/controllers/usuario_controller.php" method="POST">
-                <input type="text" placeholder="Nombre" required>
-                <input type="text" placeholder="Apellidos" required>
-                <input type="email" placeholder="Correo" required>
-                <input type="password" placeholder="Contraseña" required>
+            <form id="registerForm">
+                <input type="text" id="nombre" placeholder="Nombre completo" required>
+                <input type="email" id="email" placeholder="Correo" required>
+                <input type="tel" id="telefono" placeholder="Telefono" pattern="[0-9]{10}">
+                <input type="password" id="password" placeholder="Contrasena" required minlength="6">
+                <input type="password" id="confirmPassword" placeholder="Confirmar contrasena" required minlength="6">
                 <button type="submit">REGISTRARSE</button>
                 <p>
-                <a href="InicioSesion.html" class="register-link">Salir</a>
+                <a href="inicioSesion.html" class="register-link">Ya tengo cuenta</a>
             </form>
+            <div id="errorMessage" class="error-message" style="display: none; color: red; margin-top: 10px;"></div>
+            <div id="successMessage" class="success-message" style="display: none; color: green; margin-top: 10px;"></div>
         </div>
     </div>
+    
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('nombre').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('telefono').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            const submitBtn = this.querySelector('button[type="submit"]');
+            
+            // Reset messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Las contrasenas no coinciden';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Validate password length
+            if (password.length < 6) {
+                errorDiv.textContent = 'La contrasena debe tener al menos 6 caracteres';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Disable button while processing
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Registrando...';
+            
+            try {
+                const result = await AuthAPI.register(fullName, email, password, phone);
+                
+                if (result.success) {
+                    successDiv.textContent = 'Registro exitoso! Redirigiendo al login...';
+                    successDiv.style.display = 'block';
+                    
+                    // Redirect to login after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'inicioSesion.html';
+                    }, 2000);
+                } else {
+                    errorDiv.textContent = result.message || 'Error al registrar';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Error de conexion. Intente nuevamente.';
+                errorDiv.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'REGISTRARSE';
+            }
+        });
+    </script>
 </body>
 </html>

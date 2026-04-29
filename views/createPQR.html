@@ -1,55 +1,142 @@
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="../styles/pqr.css" />
-    <link rel="stylesheet" href="../styles/sideBar.css" />
-  </head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PQR - Parking The Beasts</title>
+    <link rel="stylesheet" href="../styles/pqr.css">
+    <link rel="stylesheet" href="../styles/sideBar.css">
+    <style>
+        .success-message {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        .success-message h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        .ticket-number {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 18px;
+            margin: 15px 0;
+        }
+        .vehicle-buttons button.active {
+            background-color: #5c6bc0;
+            color: white;
+        }
+    </style>
+</head>
 
-  <body>
+<body>
     <div id="menu-container"></div>
     <div class="main-content">
-      <div class="update-reservation">
-        <div class="update-header">
-          <h2>PQR</h2>
-          <button class="close-btn">X</button>
+        <div class="update-reservation">
+            <div class="update-header">
+                <h2>PQR</h2>
+                <button class="close-btn" onclick="window.location.href='seeReservation.html'">X</button>
+            </div>
+            
+            <div id="pqrForm">
+                <form id="createPQRForm">
+                    <label>Tipo de solicitud</label>
+                    <div class="vehicle-buttons" id="typeButtons">
+                        <button type="button" onclick="selectType('PETITION', this)">Peticiones</button>
+                        <button type="button" onclick="selectType('COMPLAINT', this)">Quejas</button>
+                        <button type="button" onclick="selectType('CLAIM', this)">Reclamos</button>
+                    </div>
+                    <input type="hidden" id="selectedType">
+
+                    <label>Descripcion</label>
+                    <textarea id="description" placeholder="Escriba aqui la descripcion de su solicitud" required rows="5"></textarea>
+
+                    <div id="errorMessage" style="display: none; color: red; margin: 10px 0; text-align: center;"></div>
+                    
+                    <button class="save-btn" type="submit" id="submitBtn">Enviar Solicitud</button>
+                </form>
+            </div>
+
+            <div id="successMessage" class="success-message">
+                <h3>Solicitud Enviada!</h3>
+                <p>Tu PQR ha sido registrada exitosamente</p>
+                <p>Numero de ticket:</p>
+                <div class="ticket-number" id="ticketNumber"></div>
+                <p>Pronto nos comunicaremos contigo</p>
+                <button class="save-btn" onclick="window.location.reload()">Crear Nueva Solicitud</button>
+            </div>
         </div>
-        <form>
-          <label>Tipo de peticcion</label>
-          <div class="vehicle-buttons">
-            <button type="button">Peticiones</button>
-            <button type="button">Quejas</button>
-            <button type="button">Reclamos</button>
-          </div>
-          <label>Descripción</label>
-          <textarea placeholder="Escriba aquí la descripción"></textarea>
-
-          <label>*Fecha</label>
-          <div class="date-select">
-            <select>
-              <option>Día</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-            </select>
-            <select>
-              <option>Mes</option>
-              <option>Enero</option>
-              <option>Febrero</option>
-            </select>
-            <select>
-              <option>Año</option>
-              <option>2024</option>
-              <option>2025</option>
-            </select>
-          </div>
-
-          <button class="save-btn">Guardar</button>
-        </form>
-      </div>
     </div>
 
     <script src="../js/sideBar.js"></script>
-  </body>
+    <script src="../js/api.js"></script>
+    <script>
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!requireLogin()) return;
+        });
+
+        // Select PQR type
+        function selectType(type, button) {
+            // Remove active class from all buttons
+            document.querySelectorAll('#typeButtons button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to selected button
+            button.classList.add('active');
+            document.getElementById('selectedType').value = type;
+        }
+
+        // Form submission
+        document.getElementById('createPQRForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('selectedType').value;
+            const description = document.getElementById('description').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Validate type selection
+            if (!type) {
+                errorDiv.textContent = 'Por favor selecciona un tipo de solicitud';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Validate description
+            if (!description) {
+                errorDiv.textContent = 'Por favor escribe una descripcion';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const result = await PQRAPI.create(type, description);
+                
+                if (result.success) {
+                    document.getElementById('pqrForm').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('ticketNumber').textContent = `PQR-${String(result.pqr_id).padStart(6, '0')}`;
+                } else {
+                    errorDiv.textContent = result.message || 'Error al enviar la solicitud';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Error de conexion. Intente nuevamente.';
+                errorDiv.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Solicitud';
+            }
+        });
+    </script>
+</body>
 </html>

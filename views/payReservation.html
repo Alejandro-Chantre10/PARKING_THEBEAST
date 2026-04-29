@@ -1,78 +1,223 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Pagar Reserva - Parking The Beasts</title>
     <link rel="stylesheet" href="../styles/updateReservation.css">
     <link rel="stylesheet" href="../styles/sideBar.css">
+    <style>
+        .payment-method-btn {
+            padding: 12px 24px;
+            margin: 5px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .payment-method-btn.selected {
+            border-color: #5c6bc0;
+            background-color: #5c6bc0;
+            color: white;
+        }
+        .payment-method-btn:hover {
+            border-color: #5c6bc0;
+        }
+        .success-message {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        .success-message h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        .reference-code {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 18px;
+            margin: 15px 0;
+        }
+        .total-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #5c6bc0;
+            text-align: center;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
 </head>
 
 <body>
-        <div id="menu-container"></div>
-        <div class="main-content">
-            <div class="update-reservation">
-                <div class="update-header">
-                    <h2>PAGO</h2>
-                    <button class="close-btn">X</button>
-                </div>
+    <div id="menu-container"></div>
+    <div class="main-content">
+        <div class="update-reservation">
+            <div class="update-header">
+                <h2>PAGO</h2>
+                <button class="close-btn" onclick="window.location.href='seeReservation.html'">X</button>
+            </div>
+            
+            <div id="paymentForm">
                 <form>
-                    <label>Número de reserva</label>
-                    <input type="text" value="001" disabled>
+                    <label>Numero de reserva</label>
+                    <input type="text" id="reservationId" disabled>
 
                     <label>Placa</label>
-                    <input type="text" value="MWS31H" disabled>
+                    <input type="text" id="vehiclePlate" disabled>
 
-                    <label>Hora ingreso</label>
-                    <div class="time-select">
-                        <select>
-                            <option>Hora</option>
-                            <option>01</option>
-                            <option>02</option>
-                            <option>03</option>
-                        </select>
-                        <select>
-                            <option>Minutos</option>
-                            <option>00</option>
-                            <option>15</option>
-                            <option>30</option>
-                        </select>
-                    </div>
+                    <label>Fecha y hora de ingreso</label>
+                    <input type="text" id="startAt" disabled>
 
-                    <label>*Fecha de reserva</label>
-                    <div class="date-select">
-                        <select>
-                            <option>Día</option>
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                        </select>
-                        <select>
-                            <option>Mes</option>
-                            <option>Enero</option>
-                            <option>Febrero</option>
-                        </select>
-                        <select>
-                            <option>Año</option>
-                            <option>2024</option>
-                            <option>2025</option>
-                        </select>
-                    </div>
+                    <label>Fecha y hora de salida</label>
+                    <input type="text" id="endAt" disabled>
 
                     <label>Vehiculo</label>
-                    <input type="text" value="Moto" disabled>
+                    <input type="text" id="vehicleType" disabled>
 
-                    <label>Metodo de pago</label>
-                    <div class="vehicle-buttons">
-                        <button type="button">PSE</button>
-                        <button type="button">Tarjeta</button>
+                    <div class="total-price">
+                        Total a pagar: <span id="totalPrice">$0</span>
                     </div>
 
-                    <a href="seeReservation.html" class="save-btn" id="boton-Guardar">Guardar</a>
+                    <label>Metodo de pago</label>
+                    <div class="vehicle-buttons" id="paymentMethods">
+                        <button type="button" class="payment-method-btn" onclick="selectPaymentMethod('PSE', this)">PSE</button>
+                        <button type="button" class="payment-method-btn" onclick="selectPaymentMethod('CARD', this)">Tarjeta</button>
+                        <button type="button" class="payment-method-btn" onclick="selectPaymentMethod('CASH', this)">Efectivo</button>
+                    </div>
+                    <input type="hidden" id="selectedMethod">
+
+                    <button type="button" class="save-btn" id="payBtn" onclick="processPayment()">Pagar Ahora</button>
                 </form>
+                <div id="errorMessage" style="display: none; color: red; margin-top: 10px; text-align: center;"></div>
+            </div>
+
+            <div id="successMessage" class="success-message">
+                <h3>Pago Exitoso!</h3>
+                <p>Tu reserva ha sido confirmada</p>
+                <p>Referencia de pago:</p>
+                <div class="reference-code" id="paymentReference"></div>
+                <p>Guarda este codigo como comprobante</p>
+                <button class="save-btn" onclick="window.location.href='seeReservation.html'">Ver Mis Reservas</button>
             </div>
         </div>
+    </div>
 
     <script src="../js/sideBar.js"></script>
-</body>
+    <script src="../js/api.js"></script>
+    <script>
+        let currentReservationId = null;
+        let currentPaymentId = null;
 
+        // Load reservation details on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!requireLogin()) return;
+            
+            // Get reservation ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentReservationId = urlParams.get('id');
+            const priceFromUrl = urlParams.get('price');
+            
+            if (!currentReservationId) {
+                showNotification('Reserva no especificada', 'error');
+                window.location.href = 'seeReservation.html';
+                return;
+            }
+            
+            await loadReservationDetails(currentReservationId, priceFromUrl);
+        });
+
+        // Load reservation details
+        async function loadReservationDetails(id, priceFromUrl) {
+            try {
+                const result = await ReservationsAPI.getById(id);
+                
+                if (result.success && result.reservation) {
+                    const r = result.reservation;
+                    
+                    document.getElementById('reservationId').value = String(r.id_reservations).padStart(6, '0');
+                    document.getElementById('vehiclePlate').value = r.vehicle_plate;
+                    document.getElementById('startAt').value = formatDateTime(r.start_at);
+                    document.getElementById('endAt').value = formatDateTime(r.end_at);
+                    document.getElementById('vehicleType').value = r.vehicle_type_name;
+                    document.getElementById('totalPrice').textContent = formatCurrency(r.price || priceFromUrl);
+                    
+                    // Check if reservation is already paid
+                    if (r.status !== 'PENDING') {
+                        document.getElementById('payBtn').disabled = true;
+                        document.getElementById('payBtn').textContent = 'Reserva ya procesada';
+                        document.getElementById('payBtn').style.backgroundColor = '#999';
+                    }
+                } else {
+                    showNotification('No se pudo cargar la reserva', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading reservation:', error);
+                showNotification('Error al cargar la reserva', 'error');
+            }
+        }
+
+        // Select payment method
+        function selectPaymentMethod(method, button) {
+            // Remove selected class from all buttons
+            document.querySelectorAll('.payment-method-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked button
+            button.classList.add('selected');
+            document.getElementById('selectedMethod').value = method;
+        }
+
+        // Process payment
+        async function processPayment() {
+            const method = document.getElementById('selectedMethod').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const payBtn = document.getElementById('payBtn');
+            
+            if (!method) {
+                errorDiv.textContent = 'Por favor selecciona un metodo de pago';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            payBtn.disabled = true;
+            payBtn.textContent = 'Procesando...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                // Create payment
+                const createResult = await PaymentsAPI.create(currentReservationId, method);
+                
+                if (!createResult.success) {
+                    throw new Error(createResult.message || 'Error al crear el pago');
+                }
+                
+                currentPaymentId = createResult.payment_id;
+                
+                // Process payment
+                const processResult = await PaymentsAPI.process(currentPaymentId);
+                
+                if (processResult.success) {
+                    // Show success message
+                    document.getElementById('paymentForm').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('paymentReference').textContent = processResult.reference;
+                } else {
+                    throw new Error(processResult.message || 'Error al procesar el pago');
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Error de conexion';
+                errorDiv.style.display = 'block';
+                payBtn.disabled = false;
+                payBtn.textContent = 'Pagar Ahora';
+            }
+        }
+    </script>
+</body>
 </html>

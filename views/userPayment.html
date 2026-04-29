@@ -1,53 +1,127 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagos</title>
-    <link rel="stylesheet" href="../styles/userPayment.css">
+    <title>Historial de Pagos - Parking The Beasts</title>
+    <link rel="stylesheet" href="../styles/seeReservation.css">
     <link rel="stylesheet" href="../styles/sideBar.css">
+    <style>
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-PENDING { background-color: #fff3e0; color: #e65100; }
+        .status-PAID { background-color: #e8f5e9; color: #2e7d32; }
+        .status-FAILED { background-color: #ffebee; color: #c62828; }
+        .status-REFUNDED { background-color: #e3f2fd; color: #1565c0; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
 </head>
 
 <body>
-
     <div id="menu-container"></div>
 
     <div class="main-content">
-        <div class="payment-container">
-            <div class="payment-header">
-                <h2>PAGO</h2>
-                <button class="close-btn">X</button>
+        <div class="update-reservation">
+            <div class="update-header">
+                <h2>Historial de Pagos</h2>
+                <button class="close-btn" onclick="window.location.href='seeReservation.html'">X</button>
             </div>
-            <form>
-                <label>Número de reserva</label>
-                <input type="text" value="001" readonly>
             
-                <label>Placa</label>
-                <input type="text" value="ABC123" readonly>
+            <div id="loadingState" class="loading">Cargando pagos...</div>
             
-                <label>Hora ingreso</label>
-                <input type="text" value="08:00 AM" readonly>
-            
-                <label>Fecha de reserva</label>
-                <input type="text" value="2025-04-07" readonly>
-            
-                <label>Vehículo</label>
-                <input type="text" value="Moto" readonly>
-            </form>
-            
-                <label>Método de pago</label>
-                <div class="payment-methods">
-                    <button type="button">PSE</button>
-                    <button type="button">Tarjeta</button>
-                </div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <p>No tienes pagos registrados</p>
+            </div>
 
-                <button class="pay-btn">Pagar</button>
-            </form>
+            <table class="reservation-table" id="paymentsTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Referencia</th>
+                        <th>Placa</th>
+                        <th>Monto</th>
+                        <th>Metodo</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsBody">
+                    <!-- Payments will be loaded here -->
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script src="../js/sideBar.js"></script>
-</body>
+    <script src="../js/api.js"></script>
+    <script>
+        // Check authentication and load payments on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!requireLogin()) return;
+            await loadPayments();
+        });
 
+        // Load user payments
+        async function loadPayments() {
+            const loadingDiv = document.getElementById('loadingState');
+            const emptyDiv = document.getElementById('emptyState');
+            const table = document.getElementById('paymentsTable');
+            const tbody = document.getElementById('paymentsBody');
+
+            try {
+                const result = await PaymentsAPI.getList();
+                
+                loadingDiv.style.display = 'none';
+                
+                if (result.success && result.payments && result.payments.length > 0) {
+                    table.style.display = 'table';
+                    tbody.innerHTML = '';
+                    
+                    result.payments.forEach(payment => {
+                        const row = document.createElement('tr');
+                        
+                        row.innerHTML = `
+                            <td>${payment.gateway_reference || '-'}</td>
+                            <td>${payment.vehicle_plate}</td>
+                            <td>${formatCurrency(payment.amount)}</td>
+                            <td>${payment.method}</td>
+                            <td><span class="status-badge status-${payment.status}">${getStatusText(payment.status)}</span></td>
+                            <td>${formatDateTime(payment.created_at)}</td>
+                        `;
+                        
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    emptyDiv.style.display = 'block';
+                }
+            } catch (error) {
+                loadingDiv.textContent = 'Error al cargar los pagos';
+                console.error('Error loading payments:', error);
+            }
+        }
+
+        // Get status text in Spanish
+        function getStatusText(status) {
+            const texts = {
+                'PENDING': 'Pendiente',
+                'PAID': 'Pagado',
+                'FAILED': 'Fallido',
+                'REFUNDED': 'Reembolsado'
+            };
+            return texts[status] || status;
+        }
+    </script>
+</body>
 </html>

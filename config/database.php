@@ -1,19 +1,62 @@
 <?php
-$host = "localhost";
-$user = "root";
-$password = "";
-$database = "parqueadero_db";
+/**
+ * Database Configuration - Parking The Beasts
+ * Uses PDO for secure database connections
+ */
 
-// Crear conexión
-$conn = new mysqli($host, $user, $password, $database);
+class Database {
+    private $host = "localhost";
+    private $db_name = "parqueadero_db";
+    private $username = "root";
+    private $password = "";
+    private $conn = null;
+    private static $instance = null;
 
-// Verificar conexión
-if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
+    // Private constructor for singleton pattern
+    private function __construct() {}
+
+    // Get database instance (Singleton)
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    // Get database connection
+    public function getConnection() {
+        if ($this->conn === null) {
+            try {
+                $dsn = "mysql:host=" . $this->host . ";dbname=" . $this->db_name . ";charset=utf8mb4";
+                $options = [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ];
+                $this->conn = new PDO($dsn, $this->username, $this->password, $options);
+            } catch (PDOException $e) {
+                throw new Exception("Connection error: " . $e->getMessage());
+            }
+        }
+        return $this->conn;
+    }
+
+    // Close connection
+    public function closeConnection() {
+        $this->conn = null;
+    }
+
+    // Prevent cloning
+    private function __clone() {}
+
+    // Prevent unserialization
+    public function __wakeup() {
+        throw new Exception("Cannot unserialize singleton");
+    }
 }
 
-echo "Conexión exitosa";
-
-// Cerrar conexión
-$conn->close();
+// Helper function to get DB connection
+function getDBConnection() {
+    return Database::getInstance()->getConnection();
+}
 ?>
