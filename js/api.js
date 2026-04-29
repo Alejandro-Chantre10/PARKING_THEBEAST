@@ -6,13 +6,32 @@
 // Detect base URL dynamically based on current location
 function getApiBaseUrl() {
     const path = window.location.pathname;
+    console.log('[v0] Current pathname:', path);
+    
     // Get the directory path (remove file name if present)
-    const dir = path.substring(0, path.lastIndexOf('/'));
+    let dir = path;
+    if (path.includes('.html') || path.includes('.php')) {
+        dir = path.substring(0, path.lastIndexOf('/'));
+    }
+    
+    // Remove trailing slash if present
+    if (dir.endsWith('/')) {
+        dir = dir.slice(0, -1);
+    }
+    
     // If we're in a subdirectory like /views/, go up one level
     if (dir.endsWith('/views')) {
-        return dir.replace('/views', '/api');
+        dir = dir.replace('/views', '');
     }
-    return dir + '/api';
+    
+    // If dir is empty, use current origin path
+    if (!dir || dir === '') {
+        dir = '';
+    }
+    
+    const apiUrl = dir + '/api';
+    console.log('[v0] Calculated API URL:', apiUrl);
+    return apiUrl;
 }
 
 const API_BASE_URL = getApiBaseUrl();
