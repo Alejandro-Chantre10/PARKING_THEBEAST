@@ -14,12 +14,12 @@ Sistema completo de gestion de parqueadero con reservas, pagos y administracion.
 
 1. Crear una base de datos MySQL:
 ```sql
-CREATE DATABASE parqueadero_db;
+CREATE DATABASE parking_db;
 ```
 
-2. Importar el esquema:
+2. Importar el esquema SQL proporcionado (parking_db.sql) o usar el schema generado:
 ```bash
-mysql -u tu_usuario -p parqueadero_db < config/schema.sql
+mysql -u tu_usuario -p parking_db < config/schema.sql
 ```
 
 ### 2. Configurar la Conexion
@@ -28,7 +28,7 @@ Editar `config/database.php` con tus credenciales:
 
 ```php
 private $host = 'localhost';
-private $database = 'parqueadero_db';
+private $database = 'parking_db';
 private $username = 'tu_usuario';
 private $password = 'tu_password';
 ```
@@ -107,18 +107,25 @@ sudo systemctl restart apache2
 ```javascript
 // Login
 const response = await AuthAPI.login('email@ejemplo.com', 'password');
+if (response.success) {
+    storeUserSession(response.user);
+}
 
 // Crear reserva
-const reserva = await ReservationsAPI.create({
-    id_facilities: 1,
-    id_vehicle_types: 1,
-    vehicle_plate: 'ABC123',
-    start_at: '2024-01-15 10:00:00',
-    end_at: '2024-01-15 14:00:00'
-});
+const reserva = await ReservationsAPI.create(
+    1,                          // vehicle_type_id
+    'ABC123',                   // vehicle_plate
+    '2024-01-15 10:00:00',      // start_at
+    '2024-01-15 14:00:00',      // end_at
+    'Carro rojo',               // vehicle_description (opcional)
+    ''                          // notes (opcional)
+);
 
 // Obtener tarifas
 const tarifas = await RatesAPI.getList();
+
+// Calcular precio
+const precio = await ReservationsAPI.calculatePrice(1, startAt, endAt, 1);
 ```
 
 ## Seguridad

@@ -2,6 +2,7 @@
 /**
  * Reservation Model - Parking The Beasts
  * Handles all reservation-related database operations
+ * Updated to match parking_db schema
  */
 
 require_once __DIR__ . '/../../config/database.php';
@@ -19,18 +20,18 @@ class ReservationModel {
      */
     public function create($data) {
         $sql = "INSERT INTO {$this->table} 
-                (id_facilities, id_users, id_vehicle_types, vehicle_plate, vehicle_description, 
+                (facility_id, user_id, vehicle_type_id, vehicle_plate, vehicle_description, 
                  start_at, end_at, status, price, notes) 
                 VALUES 
-                (:id_facilities, :id_users, :id_vehicle_types, :vehicle_plate, :vehicle_description,
+                (:facility_id, :user_id, :vehicle_type_id, :vehicle_plate, :vehicle_description,
                  :start_at, :end_at, :status, :price, :notes)";
         
         $stmt = $this->db->prepare($sql);
         
         $result = $stmt->execute([
-            ':id_facilities'       => $data['id_facilities'] ?? 1,
-            ':id_users'            => $data['id_users'],
-            ':id_vehicle_types'    => $data['id_vehicle_types'],
+            ':facility_id'         => $data['facility_id'] ?? 1,
+            ':user_id'             => $data['user_id'],
+            ':vehicle_type_id'     => $data['vehicle_type_id'],
             ':vehicle_plate'       => strtoupper($data['vehicle_plate']),
             ':vehicle_description' => $data['vehicle_description'] ?? null,
             ':start_at'            => $data['start_at'],
@@ -55,10 +56,10 @@ class ReservationModel {
                        u.full_name as user_name, u.email as user_email,
                        vt.code as vehicle_type_code, vt.name as vehicle_type_name
                 FROM {$this->table} r
-                JOIN facilities f ON r.id_facilities = f.id_facilities
-                JOIN users u ON r.id_users = u.id_users
-                JOIN vehicle_types vt ON r.id_vehicle_types = vt.id_vehicle_types
-                WHERE r.id_reservations = :id";
+                JOIN facilities f ON r.facility_id = f.id
+                JOIN users u ON r.user_id = u.id
+                JOIN vehicle_types vt ON r.vehicle_type_id = vt.id
+                WHERE r.id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
         return $stmt->fetch();
@@ -72,9 +73,9 @@ class ReservationModel {
                        f.name as facility_name,
                        vt.name as vehicle_type_name, vt.code as vehicle_type_code
                 FROM {$this->table} r
-                JOIN facilities f ON r.id_facilities = f.id_facilities
-                JOIN vehicle_types vt ON r.id_vehicle_types = vt.id_vehicle_types
-                WHERE r.id_users = :user_id";
+                JOIN facilities f ON r.facility_id = f.id
+                JOIN vehicle_types vt ON r.vehicle_type_id = vt.id
+                WHERE r.user_id = :user_id";
         
         if ($status) {
             $sql .= " AND r.status = :status";
@@ -96,19 +97,19 @@ class ReservationModel {
      */
     public function update($id, $data) {
         $sql = "UPDATE {$this->table} SET 
-                    id_vehicle_types = :id_vehicle_types,
+                    vehicle_type_id = :vehicle_type_id,
                     vehicle_plate = :vehicle_plate,
                     vehicle_description = :vehicle_description,
                     start_at = :start_at,
                     end_at = :end_at,
                     notes = :notes,
                     updated_at = NOW()
-                WHERE id_reservations = :id";
+                WHERE id = :id";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             ':id'                  => $id,
-            ':id_vehicle_types'    => $data['id_vehicle_types'],
+            ':vehicle_type_id'     => $data['vehicle_type_id'],
             ':vehicle_plate'       => strtoupper($data['vehicle_plate']),
             ':vehicle_description' => $data['vehicle_description'] ?? null,
             ':start_at'            => $data['start_at'],
@@ -121,7 +122,7 @@ class ReservationModel {
      * Update reservation status
      */
     public function updateStatus($id, $status) {
-        $sql = "UPDATE {$this->table} SET status = :status, updated_at = NOW() WHERE id_reservations = :id";
+        $sql = "UPDATE {$this->table} SET status = :status, updated_at = NOW() WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([':id' => $id, ':status' => $status]);
     }
@@ -130,7 +131,7 @@ class ReservationModel {
      * Update reservation price
      */
     public function updatePrice($id, $price) {
-        $sql = "UPDATE {$this->table} SET price = :price, updated_at = NOW() WHERE id_reservations = :id";
+        $sql = "UPDATE {$this->table} SET price = :price, updated_at = NOW() WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([':id' => $id, ':price' => $price]);
     }
@@ -151,9 +152,9 @@ class ReservationModel {
                        u.full_name as user_name,
                        vt.name as vehicle_type_name
                 FROM {$this->table} r
-                JOIN facilities f ON r.id_facilities = f.id_facilities
-                JOIN users u ON r.id_users = u.id_users
-                JOIN vehicle_types vt ON r.id_vehicle_types = vt.id_vehicle_types
+                JOIN facilities f ON r.facility_id = f.id
+                JOIN users u ON r.user_id = u.id
+                JOIN vehicle_types vt ON r.vehicle_type_id = vt.id
                 WHERE 1=1";
         
         $params = [];
@@ -164,7 +165,7 @@ class ReservationModel {
         }
         
         if (!empty($filters['facility_id'])) {
-            $sql .= " AND r.id_facilities = :facility_id";
+            $sql .= " AND r.facility_id = :facility_id";
             $params[':facility_id'] = $filters['facility_id'];
         }
         
@@ -197,8 +198,8 @@ class ReservationModel {
         // Get rate for this facility and vehicle type
         $sql = "SELECT price_per_hour, min_minutes, rounding_minutes, grace_minutes 
                 FROM rates 
-                WHERE id_facilities = :facility_id 
-                AND id_vehicle_types = :vehicle_type_id 
+                WHERE facility_id = :facility_id 
+                AND vehicle_type_id = :vehicle_type_id 
                 AND is_active = 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
@@ -244,7 +245,7 @@ class ReservationModel {
     public function checkAvailability($facilityId, $vehicleTypeId, $startAt, $endAt, $excludeReservationId = null) {
         // Get capacity
         $sql = "SELECT capacity FROM parking_capacity 
-                WHERE id_facilities = :facility_id AND id_vehicle_types = :vehicle_type_id";
+                WHERE facility_id = :facility_id AND vehicle_type_id = :vehicle_type_id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             ':facility_id'     => $facilityId,
@@ -258,15 +259,15 @@ class ReservationModel {
         
         // Count existing reservations for the time slot
         $sql = "SELECT COUNT(*) as count FROM {$this->table} 
-                WHERE id_facilities = :facility_id 
-                AND id_vehicle_types = :vehicle_type_id
+                WHERE facility_id = :facility_id 
+                AND vehicle_type_id = :vehicle_type_id
                 AND status IN ('PENDING', 'CONFIRMED')
                 AND ((start_at <= :start_at AND end_at > :start_at)
                      OR (start_at < :end_at AND end_at >= :end_at)
                      OR (start_at >= :start_at AND end_at <= :end_at))";
         
         if ($excludeReservationId) {
-            $sql .= " AND id_reservations != :exclude_id";
+            $sql .= " AND id != :exclude_id";
         }
         
         $stmt = $this->db->prepare($sql);
@@ -283,6 +284,44 @@ class ReservationModel {
         $count = $stmt->fetch();
         
         return $count['count'] < $capacity['capacity'];
+    }
+
+    /**
+     * Count reservations by status
+     */
+    public function countByStatus($status = null) {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        if ($status) {
+            $sql .= " WHERE status = :status";
+        }
+        $stmt = $this->db->prepare($sql);
+        if ($status) {
+            $stmt->execute([':status' => $status]);
+        } else {
+            $stmt->execute();
+        }
+        $result = $stmt->fetch();
+        return $result['total'];
+    }
+
+    /**
+     * Get recent reservations
+     */
+    public function getRecent($limit = 5) {
+        $sql = "SELECT r.*, 
+                       f.name as facility_name,
+                       u.full_name as user_name,
+                       vt.name as vehicle_type_name
+                FROM {$this->table} r
+                JOIN facilities f ON r.facility_id = f.id
+                JOIN users u ON r.user_id = u.id
+                JOIN vehicle_types vt ON r.vehicle_type_id = vt.id
+                ORDER BY r.created_at DESC
+                LIMIT :limit";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 }
 ?>

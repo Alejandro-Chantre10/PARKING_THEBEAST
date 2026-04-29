@@ -2,6 +2,7 @@
 /**
  * Reservation Controller - Parking The Beasts
  * Handles reservation-related requests
+ * Updated to match parking_db schema
  */
 
 require_once __DIR__ . '/../models/reserva.php';
@@ -18,7 +19,7 @@ class ReservationController {
      */
     public function create($data) {
         // Validate required fields
-        $required = ['id_users', 'id_vehicle_types', 'vehicle_plate', 'start_at', 'end_at'];
+        $required = ['user_id', 'vehicle_type_id', 'vehicle_plate', 'start_at', 'end_at'];
         foreach ($required as $field) {
             if (empty($data[$field])) {
                 return [
@@ -48,10 +49,10 @@ class ReservationController {
         }
 
         // Check availability
-        $facilityId = $data['id_facilities'] ?? 1;
+        $facilityId = $data['facility_id'] ?? 1;
         $isAvailable = $this->reservationModel->checkAvailability(
             $facilityId,
-            $data['id_vehicle_types'],
+            $data['vehicle_type_id'],
             $data['start_at'],
             $data['end_at']
         );
@@ -66,16 +67,16 @@ class ReservationController {
         // Calculate price
         $price = $this->reservationModel->calculatePrice(
             $facilityId,
-            $data['id_vehicle_types'],
+            $data['vehicle_type_id'],
             $data['start_at'],
             $data['end_at']
         );
 
         // Create reservation
         $reservationId = $this->reservationModel->create([
-            'id_facilities'       => $facilityId,
-            'id_users'            => $data['id_users'],
-            'id_vehicle_types'    => $data['id_vehicle_types'],
+            'facility_id'         => $facilityId,
+            'user_id'             => $data['user_id'],
+            'vehicle_type_id'     => $data['vehicle_type_id'],
             'vehicle_plate'       => $data['vehicle_plate'],
             'vehicle_description' => $data['vehicle_description'] ?? null,
             'start_at'            => $data['start_at'],
@@ -145,7 +146,7 @@ class ReservationController {
         }
 
         // Check ownership
-        if ($reservation['id_users'] != $userId) {
+        if ($reservation['user_id'] != $userId) {
             return [
                 'success' => false,
                 'message' => 'No tienes permiso para modificar esta reserva'
@@ -182,8 +183,8 @@ class ReservationController {
 
             // Check availability excluding current reservation
             $isAvailable = $this->reservationModel->checkAvailability(
-                $reservation['id_facilities'],
-                $data['id_vehicle_types'] ?? $reservation['id_vehicle_types'],
+                $reservation['facility_id'],
+                $data['vehicle_type_id'] ?? $reservation['vehicle_type_id'],
                 $data['start_at'],
                 $data['end_at'],
                 $id
@@ -199,7 +200,7 @@ class ReservationController {
 
         // Update reservation
         $result = $this->reservationModel->update($id, [
-            'id_vehicle_types'    => $data['id_vehicle_types'] ?? $reservation['id_vehicle_types'],
+            'vehicle_type_id'     => $data['vehicle_type_id'] ?? $reservation['vehicle_type_id'],
             'vehicle_plate'       => $data['vehicle_plate'] ?? $reservation['vehicle_plate'],
             'vehicle_description' => $data['vehicle_description'] ?? $reservation['vehicle_description'],
             'start_at'            => $data['start_at'] ?? $reservation['start_at'],
@@ -211,8 +212,8 @@ class ReservationController {
             // Recalculate price if dates changed
             if (!empty($data['start_at']) && !empty($data['end_at'])) {
                 $newPrice = $this->reservationModel->calculatePrice(
-                    $reservation['id_facilities'],
-                    $data['id_vehicle_types'] ?? $reservation['id_vehicle_types'],
+                    $reservation['facility_id'],
+                    $data['vehicle_type_id'] ?? $reservation['vehicle_type_id'],
                     $data['start_at'],
                     $data['end_at']
                 );
@@ -245,7 +246,7 @@ class ReservationController {
         }
 
         // Check ownership
-        if ($reservation['id_users'] != $userId) {
+        if ($reservation['user_id'] != $userId) {
             return [
                 'success' => false,
                 'message' => 'No tienes permiso para cancelar esta reserva'
@@ -308,6 +309,34 @@ class ReservationController {
         return [
             'success' => true,
             'available' => $isAvailable
+        ];
+    }
+
+    /**
+     * Get dashboard stats
+     */
+    public function getStats() {
+        return [
+            'success' => true,
+            'stats' => [
+                'total' => $this->reservationModel->countByStatus(),
+                'pending' => $this->reservationModel->countByStatus('PENDING'),
+                'confirmed' => $this->reservationModel->countByStatus('CONFIRMED'),
+                'completed' => $this->reservationModel->countByStatus('COMPLETED'),
+                'cancelled' => $this->reservationModel->countByStatus('CANCELLED')
+            ]
+        ];
+    }
+
+    /**
+     * Get recent reservations
+     */
+    public function getRecent($limit = 5) {
+        $reservations = $this->reservationModel->getRecent($limit);
+        
+        return [
+            'success' => true,
+            'reservations' => $reservations
         ];
     }
 }

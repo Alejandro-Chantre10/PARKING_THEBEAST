@@ -2,6 +2,7 @@
 /**
  * Payment Controller - Parking The Beasts
  * Handles payment-related requests
+ * Updated to match parking_db schema
  */
 
 require_once __DIR__ . '/../models/pago.php';
@@ -21,7 +22,7 @@ class PaymentController {
      */
     public function create($data) {
         // Validate required fields
-        if (empty($data['id_reservations']) || empty($data['id_users']) || empty($data['method'])) {
+        if (empty($data['reservation_id']) || empty($data['user_id']) || empty($data['method'])) {
             return [
                 'success' => false,
                 'message' => 'Reserva, usuario y método de pago son requeridos'
@@ -29,7 +30,7 @@ class PaymentController {
         }
 
         // Get reservation
-        $reservation = $this->reservationModel->getById($data['id_reservations']);
+        $reservation = $this->reservationModel->getById($data['reservation_id']);
         
         if (!$reservation) {
             return [
@@ -39,7 +40,7 @@ class PaymentController {
         }
 
         // Check ownership
-        if ($reservation['id_users'] != $data['id_users']) {
+        if ($reservation['user_id'] != $data['user_id']) {
             return [
                 'success' => false,
                 'message' => 'No tienes permiso para pagar esta reserva'
@@ -56,12 +57,12 @@ class PaymentController {
 
         // Create payment
         $paymentId = $this->paymentModel->create([
-            'id_reservations' => $data['id_reservations'],
-            'id_users'        => $data['id_users'],
-            'amount'          => $reservation['price'],
-            'currency'        => 'COP',
-            'method'          => $data['method'],
-            'status'          => 'PENDING'
+            'reservation_id' => $data['reservation_id'],
+            'user_id'        => $data['user_id'],
+            'amount'         => $reservation['price'],
+            'currency'       => 'COP',
+            'method'         => $data['method'],
+            'status'         => 'PENDING'
         ]);
 
         if ($paymentId) {
@@ -93,7 +94,7 @@ class PaymentController {
         }
 
         // Check ownership
-        if ($payment['id_users'] != $userId) {
+        if ($payment['user_id'] != $userId) {
             return [
                 'success' => false,
                 'message' => 'No tienes permiso para procesar este pago'
@@ -180,6 +181,22 @@ class PaymentController {
         return [
             'success' => true,
             'payments' => $payments
+        ];
+    }
+
+    /**
+     * Get payment stats
+     */
+    public function getStats() {
+        return [
+            'success' => true,
+            'stats' => [
+                'total_revenue' => $this->paymentModel->sumByStatus('PAID'),
+                'total_payments' => $this->paymentModel->countByStatus(),
+                'pending' => $this->paymentModel->countByStatus('PENDING'),
+                'paid' => $this->paymentModel->countByStatus('PAID'),
+                'failed' => $this->paymentModel->countByStatus('FAILED')
+            ]
         ];
     }
 }

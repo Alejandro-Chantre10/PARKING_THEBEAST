@@ -65,8 +65,8 @@ switch ($method) {
         
         switch ($action) {
             case 'create':
-                validateRequired($data, ['id_reservations', 'method']);
-                $data['id_users'] = $userId;
+                validateRequired($data, ['reservation_id', 'method']);
+                $data['user_id'] = $userId;
                 $result = $controller->create(sanitizeInput($data));
                 sendResponse($result, $result['success'] ? 201 : 400);
                 break;

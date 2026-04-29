@@ -2,6 +2,7 @@
 /**
  * User Controller - Parking The Beasts
  * Handles user-related requests (registration, login, profile)
+ * Updated to match parking_db schema
  */
 
 require_once __DIR__ . '/../models/usuario.php';
@@ -51,11 +52,11 @@ class UserController {
 
         // Create user
         $userId = $this->userModel->create([
-            'id_rol'    => 2, // Default USER role
+            'role_id'   => 2, // Default USER role
             'full_name' => $data['full_name'],
             'email'     => $data['email'],
             'password'  => $data['password'],
-            'phone'     => $data['phone'] ?? ''
+            'phone'     => $data['phone'] ?? null
         ]);
 
         if ($userId) {
@@ -104,19 +105,21 @@ class UserController {
             session_start();
         }
 
-        $_SESSION['user_id']   = $user['id_users'];
-        $_SESSION['user_name'] = $user['full_name'];
+        $_SESSION['user_id']    = $user['id'];
+        $_SESSION['user_name']  = $user['full_name'];
         $_SESSION['user_email'] = $user['email'];
-        $_SESSION['role']      = $user['role_code'];
+        $_SESSION['role']       = $user['role_code'];
 
         return [
             'success' => true,
             'message' => 'Inicio de sesión exitoso',
             'user' => [
-                'id'        => $user['id_users'],
+                'id'        => $user['id'],
                 'full_name' => $user['full_name'],
                 'email'     => $user['email'],
-                'role'      => $user['role_code']
+                'phone'     => $user['phone'],
+                'role'      => $user['role_code'],
+                'role_name' => $user['role_name']
             ]
         ];
     }
@@ -168,7 +171,7 @@ class UserController {
 
         $result = $this->userModel->update($userId, [
             'full_name' => $data['full_name'],
-            'phone'     => $data['phone'] ?? ''
+            'phone'     => $data['phone'] ?? null
         ]);
 
         if ($result) {
@@ -181,6 +184,47 @@ class UserController {
         return [
             'success' => false,
             'message' => 'Error al actualizar perfil'
+        ];
+    }
+
+    /**
+     * Update user email
+     */
+    public function updateEmail($userId, $newEmail) {
+        if (empty($newEmail)) {
+            return [
+                'success' => false,
+                'message' => 'El email es requerido'
+            ];
+        }
+
+        if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            return [
+                'success' => false,
+                'message' => 'Email inválido'
+            ];
+        }
+
+        // Check if email already exists (excluding current user)
+        if ($this->userModel->emailExists($newEmail, $userId)) {
+            return [
+                'success' => false,
+                'message' => 'El email ya está en uso'
+            ];
+        }
+
+        $result = $this->userModel->updateEmail($userId, $newEmail);
+
+        if ($result) {
+            return [
+                'success' => true,
+                'message' => 'Email actualizado exitosamente'
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Error al actualizar email'
         ];
     }
 
@@ -252,10 +296,12 @@ class UserController {
      */
     public function getAllUsers($limit = 50, $offset = 0) {
         $users = $this->userModel->getAll($limit, $offset);
+        $total = $this->userModel->countAll();
         
         return [
             'success' => true,
-            'users' => $users
+            'users' => $users,
+            'total' => $total
         ];
     }
 }

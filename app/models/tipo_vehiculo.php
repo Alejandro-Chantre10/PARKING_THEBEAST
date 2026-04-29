@@ -2,6 +2,7 @@
 /**
  * Vehicle Type Model - Parking The Beasts
  * Handles all vehicle type-related database operations
+ * Updated to match parking_db schema
  */
 
 require_once __DIR__ . '/../../config/database.php';
@@ -37,7 +38,7 @@ class VehicleTypeModel {
      * Get vehicle type by ID
      */
     public function getById($id) {
-        $sql = "SELECT * FROM {$this->table} WHERE id_vehicle_types = :id";
+        $sql = "SELECT * FROM {$this->table} WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
         return $stmt->fetch();
@@ -70,7 +71,7 @@ class VehicleTypeModel {
         $sql = "UPDATE {$this->table} SET 
                     code = :code,
                     name = :name
-                WHERE id_vehicle_types = :id";
+                WHERE id = :id";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
@@ -84,9 +85,25 @@ class VehicleTypeModel {
      * Delete vehicle type
      */
     public function delete($id) {
-        $sql = "DELETE FROM {$this->table} WHERE id_vehicle_types = :id";
+        $sql = "DELETE FROM {$this->table} WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([':id' => $id]);
+    }
+
+    /**
+     * Get vehicle types with rates for a facility
+     */
+    public function getWithRates($facilityId) {
+        $sql = "SELECT vt.*, 
+                       r.price_per_hour, r.min_minutes, r.grace_minutes
+                FROM {$this->table} vt
+                LEFT JOIN rates r ON vt.id = r.vehicle_type_id 
+                    AND r.facility_id = :facility_id 
+                    AND r.is_active = 1
+                ORDER BY vt.name";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':facility_id' => $facilityId]);
+        return $stmt->fetchAll();
     }
 }
 ?>

@@ -6,7 +6,7 @@
 
 class Database {
     private $host = "localhost";
-    private $db_name = "parqueadero_db";
+    private $db_name = "parking_db";
     private $username = "root";
     private $password = "";
     private $conn = null;

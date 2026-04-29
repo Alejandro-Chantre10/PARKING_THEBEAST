@@ -97,7 +97,7 @@ const UsersAPI = {
 const ReservationsAPI = {
     async create(vehicleTypeId, vehiclePlate, startAt, endAt, vehicleDescription = '', notes = '') {
         return apiRequest('/reservations.php?action=create', 'POST', {
-            id_vehicle_types: vehicleTypeId,
+            vehicle_type_id: vehicleTypeId,
             vehicle_plate: vehiclePlate,
             start_at: startAt,
             end_at: endAt,
@@ -155,7 +155,7 @@ const ReservationsAPI = {
 const PaymentsAPI = {
     async create(reservationId, method) {
         return apiRequest('/payments.php?action=create', 'POST', {
-            id_reservations: reservationId,
+            reservation_id: reservationId,
             method
         });
     },

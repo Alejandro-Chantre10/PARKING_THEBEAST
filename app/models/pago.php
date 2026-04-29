@@ -2,6 +2,7 @@
 /**
  * Payment Model - Parking The Beasts
  * Handles all payment-related database operations
+ * Updated to match parking_db schema
  */
 
 require_once __DIR__ . '/../../config/database.php';
@@ -19,15 +20,15 @@ class PaymentModel {
      */
     public function create($data) {
         $sql = "INSERT INTO {$this->table} 
-                (id_reservations, id_users, amount, currency, method, status, gateway_reference) 
+                (reservation_id, user_id, amount, currency, method, status, gateway_reference) 
                 VALUES 
-                (:id_reservations, :id_users, :amount, :currency, :method, :status, :gateway_reference)";
+                (:reservation_id, :user_id, :amount, :currency, :method, :status, :gateway_reference)";
         
         $stmt = $this->db->prepare($sql);
         
         $result = $stmt->execute([
-            ':id_reservations'   => $data['id_reservations'],
-            ':id_users'          => $data['id_users'],
+            ':reservation_id'    => $data['reservation_id'],
+            ':user_id'           => $data['user_id'],
             ':amount'            => $data['amount'],
             ':currency'          => $data['currency'] ?? 'COP',
             ':method'            => $data['method'],
@@ -49,9 +50,9 @@ class PaymentModel {
                        r.vehicle_plate, r.start_at, r.end_at,
                        u.full_name as user_name, u.email as user_email
                 FROM {$this->table} p
-                JOIN reservations r ON p.id_reservations = r.id_reservations
-                JOIN users u ON p.id_users = u.id_users
-                WHERE p.id_payments = :id";
+                JOIN reservations r ON p.reservation_id = r.id
+                JOIN users u ON p.user_id = u.id
+                WHERE p.id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
         return $stmt->fetch();
@@ -61,7 +62,7 @@ class PaymentModel {
      * Get payments by reservation ID
      */
     public function getByReservationId($reservationId) {
-        $sql = "SELECT * FROM {$this->table} WHERE id_reservations = :reservation_id ORDER BY created_at DESC";
+        $sql = "SELECT * FROM {$this->table} WHERE reservation_id = :reservation_id ORDER BY created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':reservation_id' => $reservationId]);
         return $stmt->fetchAll();
@@ -74,8 +75,8 @@ class PaymentModel {
         $sql = "SELECT p.*, 
                        r.vehicle_plate, r.start_at as reservation_start
                 FROM {$this->table} p
-                JOIN reservations r ON p.id_reservations = r.id_reservations
-                WHERE p.id_users = :user_id
+                JOIN reservations r ON p.reservation_id = r.id
+                WHERE p.user_id = :user_id
                 ORDER BY p.created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':user_id' => $userId]);
@@ -96,7 +97,7 @@ class PaymentModel {
             $sql .= ", paid_at = NOW()";
         }
         
-        $sql .= " WHERE id_payments = :id";
+        $sql .= " WHERE id = :id";
         
         $stmt = $this->db->prepare($sql);
         $params = [':id' => $id, ':status' => $status];
@@ -121,9 +122,9 @@ class PaymentModel {
             
             // Update reservation status to CONFIRMED
             $sql = "UPDATE reservations SET status = 'CONFIRMED', updated_at = NOW() 
-                    WHERE id_reservations = :reservation_id";
+                    WHERE id = :reservation_id";
             $stmt = $this->db->prepare($sql);
-            $stmt->execute([':reservation_id' => $payment['id_reservations']]);
+            $stmt->execute([':reservation_id' => $payment['reservation_id']]);
             
             $this->db->commit();
             return true;
@@ -141,8 +142,8 @@ class PaymentModel {
                        r.vehicle_plate,
                        u.full_name as user_name
                 FROM {$this->table} p
-                JOIN reservations r ON p.id_reservations = r.id_reservations
-                JOIN users u ON p.id_users = u.id_users
+                JOIN reservations r ON p.reservation_id = r.id
+                JOIN users u ON p.user_id = u.id
                 WHERE 1=1";
         
         $params = [];
@@ -167,6 +168,35 @@ class PaymentModel {
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Sum total payments by status
+     */
+    public function sumByStatus($status = 'PAID') {
+        $sql = "SELECT SUM(amount) as total FROM {$this->table} WHERE status = :status";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':status' => $status]);
+        $result = $stmt->fetch();
+        return $result['total'] ?? 0;
+    }
+
+    /**
+     * Count payments by status
+     */
+    public function countByStatus($status = null) {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        if ($status) {
+            $sql .= " WHERE status = :status";
+        }
+        $stmt = $this->db->prepare($sql);
+        if ($status) {
+            $stmt->execute([':status' => $status]);
+        } else {
+            $stmt->execute();
+        }
+        $result = $stmt->fetch();
+        return $result['total'];
     }
 }
 ?>

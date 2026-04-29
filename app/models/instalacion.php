@@ -2,6 +2,7 @@
 /**
  * Facility Model - Parking The Beasts
  * Handles all facility-related database operations
+ * Updated to match parking_db schema
  */
 
 require_once __DIR__ . '/../../config/database.php';
@@ -25,7 +26,7 @@ class FacilityModel {
         
         $result = $stmt->execute([
             ':name'      => $data['name'],
-            ':address'   => $data['address'],
+            ':address'   => $data['address'] ?? null,
             ':is_active' => $data['is_active'] ?? 1
         ]);
 
@@ -39,7 +40,7 @@ class FacilityModel {
      * Get facility by ID
      */
     public function getById($id) {
-        $sql = "SELECT * FROM {$this->table} WHERE id_facilities = :id";
+        $sql = "SELECT * FROM {$this->table} WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
         return $stmt->fetch();
@@ -73,13 +74,13 @@ class FacilityModel {
                     name = :name,
                     address = :address,
                     is_active = :is_active
-                WHERE id_facilities = :id";
+                WHERE id = :id";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             ':id'        => $id,
             ':name'      => $data['name'],
-            ':address'   => $data['address'],
+            ':address'   => $data['address'] ?? null,
             ':is_active' => $data['is_active'] ?? 1
         ]);
     }
@@ -89,12 +90,12 @@ class FacilityModel {
      */
     public function getWithCapacity($id) {
         $sql = "SELECT f.*, 
-                       vt.id_vehicle_types, vt.code as vehicle_type_code, vt.name as vehicle_type_name,
+                       vt.id, vt.code as vehicle_type_code, vt.name as vehicle_type_name,
                        pc.capacity
                 FROM {$this->table} f
-                JOIN parking_capacity pc ON f.id_facilities = pc.id_facilities
-                JOIN vehicle_types vt ON pc.id_vehicle_types = vt.id_vehicle_types
-                WHERE f.id_facilities = :id";
+                JOIN parking_capacity pc ON f.id = pc.facility_id
+                JOIN vehicle_types vt ON pc.vehicle_type_id = vt.id
+                WHERE f.id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
         return $stmt->fetchAll();
@@ -104,15 +105,16 @@ class FacilityModel {
      * Update capacity for a facility and vehicle type
      */
     public function updateCapacity($facilityId, $vehicleTypeId, $capacity) {
-        $sql = "INSERT INTO parking_capacity (id_facilities, id_vehicle_types, capacity)
+        $sql = "INSERT INTO parking_capacity (facility_id, vehicle_type_id, capacity)
                 VALUES (:facility_id, :vehicle_type_id, :capacity)
-                ON DUPLICATE KEY UPDATE capacity = :capacity";
+                ON DUPLICATE KEY UPDATE capacity = :capacity2";
         
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             ':facility_id'     => $facilityId,
             ':vehicle_type_id' => $vehicleTypeId,
-            ':capacity'        => $capacity
+            ':capacity'        => $capacity,
+            ':capacity2'       => $capacity
         ]);
     }
 
@@ -121,17 +123,39 @@ class FacilityModel {
      */
     public function getOccupancy($facilityId) {
         $sql = "SELECT 
-                    vt.id_vehicle_types, vt.name as vehicle_type_name,
+                    vt.id as vehicle_type_id, vt.name as vehicle_type_name,
                     pc.capacity,
-                    COUNT(r.id_reservations) as occupied
+                    COUNT(r.id) as occupied
                 FROM vehicle_types vt
-                LEFT JOIN parking_capacity pc ON vt.id_vehicle_types = pc.id_vehicle_types 
-                    AND pc.id_facilities = :facility_id
-                LEFT JOIN reservations r ON vt.id_vehicle_types = r.id_vehicle_types 
-                    AND r.id_facilities = :facility_id
+                LEFT JOIN parking_capacity pc ON vt.id = pc.vehicle_type_id 
+                    AND pc.facility_id = :facility_id
+                LEFT JOIN reservations r ON vt.id = r.vehicle_type_id 
+                    AND r.facility_id = :facility_id2
                     AND r.status IN ('CONFIRMED')
                     AND NOW() BETWEEN r.start_at AND r.end_at
-                GROUP BY vt.id_vehicle_types, vt.name, pc.capacity";
+                GROUP BY vt.id, vt.name, pc.capacity";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':facility_id'  => $facilityId,
+            ':facility_id2' => $facilityId
+        ]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Get capacity summary
+     */
+    public function getCapacitySummary($facilityId) {
+        $sql = "SELECT 
+                    vt.id as vehicle_type_id, 
+                    vt.name as vehicle_type_name,
+                    vt.code as vehicle_type_code,
+                    COALESCE(pc.capacity, 0) as capacity
+                FROM vehicle_types vt
+                LEFT JOIN parking_capacity pc ON vt.id = pc.vehicle_type_id 
+                    AND pc.facility_id = :facility_id
+                ORDER BY vt.name";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':facility_id' => $facilityId]);

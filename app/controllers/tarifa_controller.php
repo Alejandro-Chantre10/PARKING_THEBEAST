@@ -2,6 +2,7 @@
 /**
  * Rate Controller - Parking The Beasts
  * Handles rate/pricing-related requests
+ * Updated to match parking_db schema
  */
 
 require_once __DIR__ . '/../models/tarifa.php';
@@ -60,7 +61,7 @@ class RateController {
      * Create rate (Admin)
      */
     public function create($data) {
-        if (empty($data['id_facilities']) || empty($data['id_vehicle_types']) || empty($data['price_per_hour'])) {
+        if (empty($data['facility_id']) || empty($data['vehicle_type_id']) || empty($data['price_per_hour'])) {
             return [
                 'success' => false,
                 'message' => 'Instalación, tipo de vehículo y precio son requeridos'
@@ -69,8 +70,8 @@ class RateController {
 
         // Check if rate already exists for this facility/vehicle combo
         $existingRate = $this->rateModel->getByFacilityAndVehicleType(
-            $data['id_facilities'],
-            $data['id_vehicle_types']
+            $data['facility_id'],
+            $data['vehicle_type_id']
         );
 
         if ($existingRate) {
@@ -167,6 +168,18 @@ class RateController {
         return [
             'success' => true,
             'rates' => $rates
+        ];
+    }
+
+    /**
+     * Calculate price for given parameters
+     */
+    public function calculatePrice($facilityId, $vehicleTypeId, $startAt, $endAt) {
+        $price = $this->rateModel->calculatePrice($facilityId, $vehicleTypeId, $startAt, $endAt);
+        
+        return [
+            'success' => true,
+            'price' => $price
         ];
     }
 }

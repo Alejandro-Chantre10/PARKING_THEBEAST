@@ -86,8 +86,8 @@ switch ($method) {
         
         switch ($action) {
             case 'create':
-                validateRequired($data, ['id_vehicle_types', 'vehicle_plate', 'start_at', 'end_at']);
-                $data['id_users'] = $userId;
+                validateRequired($data, ['vehicle_type_id', 'vehicle_plate', 'start_at', 'end_at']);
+                $data['user_id'] = $userId;
                 $result = $controller->create(sanitizeInput($data));
                 sendResponse($result, $result['success'] ? 201 : 400);
                 break;
