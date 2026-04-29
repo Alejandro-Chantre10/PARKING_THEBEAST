@@ -83,8 +83,8 @@
                         const btn = document.createElement('button');
                         btn.type = 'button';
                         btn.textContent = type.name;
-                        btn.dataset.id = type.id_vehicle_types;
-                        btn.onclick = () => selectVehicleType(type.id_vehicle_types, btn);
+                        btn.dataset.id = type.id;
+                        btn.onclick = () => selectVehicleType(type.id, btn);
                         container.appendChild(btn);
                     });
                 }
