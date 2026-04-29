@@ -4,6 +4,45 @@
  * Common functions for API endpoints
  */
 
+// Error handler to return JSON instead of HTML
+function jsonErrorHandler($errno, $errstr, $errfile, $errline) {
+    header('Content-Type: application/json; charset=UTF-8');
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error del servidor: ' . $errstr,
+        'debug' => [
+            'file' => basename($errfile),
+            'line' => $errline
+        ]
+    ]);
+    exit();
+}
+
+// Exception handler to return JSON
+function jsonExceptionHandler($exception) {
+    header('Content-Type: application/json; charset=UTF-8');
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Excepción: ' . $exception->getMessage(),
+        'debug' => [
+            'file' => basename($exception->getFile()),
+            'line' => $exception->getLine()
+        ]
+    ]);
+    exit();
+}
+
+// Set error handlers
+set_error_handler('jsonErrorHandler');
+set_exception_handler('jsonExceptionHandler');
+
+// Disable HTML error output
+ini_set('display_errors', 0);
+ini_set('html_errors', 0);
+error_reporting(E_ALL);
+
 // Set headers for JSON API
 function setApiHeaders() {
     header('Content-Type: application/json; charset=UTF-8');

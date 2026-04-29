@@ -3,7 +3,19 @@
  * Handles all API calls to the PHP backend
  */
 
-const API_BASE_URL = '/api';
+// Detect base URL dynamically based on current location
+function getApiBaseUrl() {
+    const path = window.location.pathname;
+    // Get the directory path (remove file name if present)
+    const dir = path.substring(0, path.lastIndexOf('/'));
+    // If we're in a subdirectory like /views/, go up one level
+    if (dir.endsWith('/views')) {
+        return dir.replace('/views', '/api');
+    }
+    return dir + '/api';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Generic API request function
 async function apiRequest(endpoint, method = 'GET', data = null) {
@@ -20,8 +32,20 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-        const result = await response.json();
+        const url = `${API_BASE_URL}${endpoint}`;
+        console.log('[v0] API Request:', method, url);
+        
+        const response = await fetch(url, config);
+        const text = await response.text();
+        
+        // Try to parse as JSON
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('[v0] Response is not JSON:', text.substring(0, 200));
+            throw new Error('El servidor devolvió una respuesta inválida. Verifica que PHP esté funcionando correctamente.');
+        }
         
         if (!response.ok) {
             throw new Error(result.message || 'Error en la solicitud');
@@ -29,7 +53,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
         
         return result;
     } catch (error) {
-        console.error('API Error:', error);
+        console.error('[v0] API Error:', error);
         throw error;
     }
 }
@@ -291,7 +315,11 @@ function isLoggedIn() {
 // Redirect to login if not authenticated
 function requireLogin() {
     if (!isLoggedIn()) {
-        window.location.href = '/inicioSesion.html';
+        // Get base path for redirect
+        const path = window.location.pathname;
+        const dir = path.substring(0, path.lastIndexOf('/'));
+        const basePath = dir.endsWith('/views') ? dir.replace('/views', '') : dir;
+        window.location.href = basePath + '/inicioSesion.html';
         return false;
     }
     return true;

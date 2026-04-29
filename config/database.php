@@ -35,7 +35,15 @@ class Database {
                 ];
                 $this->conn = new PDO($dsn, $this->username, $this->password, $options);
             } catch (PDOException $e) {
-                throw new Exception("Connection error: " . $e->getMessage());
+                // Return JSON error instead of HTML
+                header('Content-Type: application/json; charset=UTF-8');
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Error de conexión a la base de datos. Verifica que MySQL esté corriendo y que la base de datos "parking_db" exista.',
+                    'debug' => $e->getMessage()
+                ]);
+                exit();
             }
         }
         return $this->conn;
