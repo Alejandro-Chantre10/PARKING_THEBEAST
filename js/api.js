@@ -3,35 +3,17 @@
  * Handles all API calls to the PHP backend
  */
 
-// Detect base URL dynamically based on current location
+// Detect if we're in a subdirectory (views) or root
 function getApiBaseUrl() {
     const path = window.location.pathname;
-    console.log('[v0] Current pathname:', path);
     
-    // Get the directory path (remove file name if present)
-    let dir = path;
-    if (path.includes('.html') || path.includes('.php')) {
-        dir = path.substring(0, path.lastIndexOf('/'));
+    // Check if we're inside /views/ folder
+    if (path.includes('/views/')) {
+        return '../api';  // Go up one level from views to api
     }
     
-    // Remove trailing slash if present
-    if (dir.endsWith('/')) {
-        dir = dir.slice(0, -1);
-    }
-    
-    // If we're in a subdirectory like /views/, go up one level
-    if (dir.endsWith('/views')) {
-        dir = dir.replace('/views', '');
-    }
-    
-    // If dir is empty, use current origin path
-    if (!dir || dir === '') {
-        dir = '';
-    }
-    
-    const apiUrl = dir + '/api';
-    console.log('[v0] Calculated API URL:', apiUrl);
-    return apiUrl;
+    // We're in the root of the project
+    return './api';  // api folder is in the same directory
 }
 
 const API_BASE_URL = getApiBaseUrl();
@@ -52,8 +34,6 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
 
     try {
         const url = `${API_BASE_URL}${endpoint}`;
-        console.log('[v0] API Request:', method, url);
-        
         const response = await fetch(url, config);
         const text = await response.text();
         
@@ -62,7 +42,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
         try {
             result = JSON.parse(text);
         } catch (e) {
-            console.error('[v0] Response is not JSON:', text.substring(0, 200));
+            console.error('Response is not JSON:', text.substring(0, 200));
             throw new Error('El servidor devolvió una respuesta inválida. Verifica que PHP esté funcionando correctamente.');
         }
         
@@ -72,7 +52,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
         
         return result;
     } catch (error) {
-        console.error('[v0] API Error:', error);
+        console.error('API Error:', error);
         throw error;
     }
 }
@@ -334,11 +314,13 @@ function isLoggedIn() {
 // Redirect to login if not authenticated
 function requireLogin() {
     if (!isLoggedIn()) {
-        // Get base path for redirect
         const path = window.location.pathname;
-        const dir = path.substring(0, path.lastIndexOf('/'));
-        const basePath = dir.endsWith('/views') ? dir.replace('/views', '') : dir;
-        window.location.href = basePath + '/inicioSesion.html';
+        // Check if we're inside /views/ folder
+        if (path.includes('/views/')) {
+            window.location.href = '../inicioSesion.html';
+        } else {
+            window.location.href = './inicioSesion.html';
+        }
         return false;
     }
     return true;
